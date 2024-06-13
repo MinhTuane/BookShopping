@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BookShopping.Data.Migrations
+namespace BookShopping.Migrations
 {
     [DbContext(typeof(BookDbContext))]
-    [Migration("20240612154150_update-table")]
-    partial class updatetable
+    [Migration("20240613144211_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,10 +33,10 @@ namespace BookShopping.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("GenId")
-                        .HasColumnType("int");
+                    b.Property<string>("Author")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("GenreId")
+                    b.Property<int>("GenreId")
                         .HasColumnType("int");
 
                     b.Property<string>("Image")
@@ -163,6 +163,9 @@ namespace BookShopping.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
 
                     b.Property<string>("StatusName")
                         .IsRequired()
@@ -338,12 +341,10 @@ namespace BookShopping.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -380,12 +381,10 @@ namespace BookShopping.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -399,7 +398,9 @@ namespace BookShopping.Data.Migrations
                 {
                     b.HasOne("BookShopping.Models.Genre", null)
                         .WithMany("Books")
-                        .HasForeignKey("GenreId");
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookShopping.Models.CartDetail", b =>
