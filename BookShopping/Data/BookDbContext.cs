@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookShopping.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class BookDbContext : IdentityDbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public BookDbContext(DbContextOptions<BookDbContext> options)
             : base(options)
         {
         }
