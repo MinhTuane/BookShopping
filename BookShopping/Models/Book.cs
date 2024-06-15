@@ -18,5 +18,8 @@ namespace BookShopping.Models
         public Genre Genre;
         public List<OrderDetail> OrderDetails { get; set; }
         public List<CartDetail> CartDetails { get; set; }
+
+        [NotMapped]
+        public string GenreName { get; set; }
     }
 }
