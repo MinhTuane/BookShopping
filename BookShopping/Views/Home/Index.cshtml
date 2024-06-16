@@ -46,9 +46,34 @@
                     Author:@book.Author
                     Price:@book.Price
                 </p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
+                <button type="button" class="btn btn-primary" onclick="add(@book.Id)">Add to Cart</button>
             </div>
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        alert("hello");
+        async function add(bookId) {
+            try {
+                var response await fetch(`/Cart/AddItem?bookId=${bookId}`, {
+                    headers: {
+                        accept: 'application/json',
+                        'User-agent': 'learning app',
+                    }
+                    });
+                if(response.status ==200){
+                    var result = await response.json();
+                    console.log(result);
+                    var cartCountEl = document.getElementById("cartCount");
+                    cartCountEl.innerHTML = result;
+                }       
+            }
+            catch(err) {
+                console.log(err);
+            }
+        }
+    </script>
+}
 

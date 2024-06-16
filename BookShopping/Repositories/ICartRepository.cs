@@ -2,8 +2,9 @@
 {
     public interface ICartRepository
     {
-        Task<bool> AddItem(int bookId,int qty);
-        Task<bool> RemoveItem(int bookId);
-        Task<IEnumerable<ShoppingCart>> GetCarts();
+        Task<int> AddItem(int bookId,int qty);
+        Task<int> RemoveItem(int bookId);
+        Task<ShoppingCart> GetCarts();
+        Task<int> GetCartCount(string userId = "");
     }
 }
