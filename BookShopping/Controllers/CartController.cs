@@ -1,9 +1,18 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using BookShopping.Data;
+using BookShopping.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookShopping.Controllers
 {
     [Authorize]
+    [ValidateAntiForgeryToken]
     public class CartController : Controller
     {
         private readonly ICartRepository cartRepo;
@@ -12,15 +21,16 @@ namespace BookShopping.Controllers
         {
             this.cartRepo = cartRepo;
         }
+      
         [HttpPost]
-        public async Task<IActionResult> AddItem(int bookId,int qty=1,int Redirect =0)
+        public async Task<IActionResult> AddItem(int bookId, int qty = 1, int Redirect = 0)
         {
             var cartCount = await cartRepo.AddItem(bookId, qty);
-            if(Redirect ==0)
+            if (Redirect == 0)
                 return Ok(cartCount);
             return RedirectToAction("GetUserCart");
-            
-            
+
+
         }
         [HttpPost]
         public async Task<IActionResult> RemoveItem(int bookId)
@@ -38,6 +48,5 @@ namespace BookShopping.Controllers
             int cartItem = await cartRepo.GetCartCount();
             return Ok(cartItem);
         }
-
     }
 }

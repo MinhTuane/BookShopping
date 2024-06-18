@@ -58,6 +58,7 @@
         async function add(bookId) {
             try {
                 var response = await fetch(`/Cart/AddItem?bookId=${bookId}`);
+                console.log(response);
                 if(response.status ==200){
                     var result = await response.json();
                     console.log(result);
