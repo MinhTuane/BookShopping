@@ -11,8 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace BookShopping.Controllers
 {
-    [Authorize]
-    [ValidateAntiForgeryToken]
     public class CartController : Controller
     {
         private readonly ICartRepository cartRepo;
@@ -22,7 +20,6 @@ namespace BookShopping.Controllers
             this.cartRepo = cartRepo;
         }
       
-        [HttpPost]
         public async Task<IActionResult> AddItem(int bookId, int qty = 1, int Redirect = 0)
         {
             var cartCount = await cartRepo.AddItem(bookId, qty);

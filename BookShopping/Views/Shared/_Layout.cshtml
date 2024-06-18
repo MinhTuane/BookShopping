@@ -54,11 +54,7 @@
     <script>
         loadCartCount();
         async function loadCartCount() {
-            var usernameEl = document.getElementById("username");
-            var usename = usernameEl.innerText;
-            if (username.length < 1) {
-                window.location.href = "Identity/Account/Login";
-            }
+                  
             try {
                 var response = await fetch(`/Cart/GetTotalItemInCart`, {
                     headers: {
