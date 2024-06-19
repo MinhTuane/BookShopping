@@ -20,6 +20,7 @@ namespace BookShopping.Data
 
         public DbSet<CartDetail> CartDetails { get; set; }
 
+        public DbSet<Stock> Stocks { get; set; }
 
     }
 }

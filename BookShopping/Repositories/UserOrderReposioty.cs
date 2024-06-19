@@ -16,13 +16,14 @@ namespace BookShopping.Repositories
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public UserOrderReposioty(BookDbContext db, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
+        public UserOrderReposioty(BookDbContext db,
+            UserManager<IdentityUser> userManager,
+             IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
         }
-
         public async Task ChangeOrderStatus(UpdateOrderStatusModel data)
         {
             var order = await _db.Orders.FindAsync(data.OrderId);
