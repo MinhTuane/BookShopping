@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using BookShopping.Data;
 using BookShopping.Models;
 using Microsoft.AspNetCore.Authorization;
+using BookShopping.Models.DTOs;
 
 namespace BookShopping.Controllers
 {
@@ -45,6 +46,31 @@ namespace BookShopping.Controllers
         {
             int cartItem = await cartRepo.GetCartCount();
             return Ok(cartItem);
+        }
+        public IActionResult Checkout()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CheckoutModel model)
+        {
+            if (ModelState.IsValid) 
+                return View(model);
+            bool isCheckedOut = await cartRepo.DoCheckout(model);
+            if (!isCheckedOut)
+               return RedirectToAction(nameof(OrderFailure));
+            return RedirectToAction(nameof(OrderSuccess));
+
+        }
+
+        public IActionResult OrderSuccess()
+        {
+            return View();
+        }
+
+        public IActionResult OrderFailure()
+        {
+            return View();
         }
     }
 }
