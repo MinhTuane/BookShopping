@@ -109,9 +109,17 @@ namespace BookShopping.Repositories
             var shoppingCart = await db.ShoppingCarts
                                     .Include(a => a.CartDetails)
                                         .ThenInclude(c => c.Book)
-                     
+                                            
                                     .Where(a => a.UserId == userId)
                                     .FirstOrDefaultAsync();
+                                
+            if (shoppingCart != null)
+            {
+                foreach (var cartDetail in shoppingCart.CartDetails)
+                {
+                    db.Entry(cartDetail.Book).Reference(b => b.Genre).Load();
+                }
+            }
             return shoppingCart;
         }
         public async Task<ShoppingCart> GetCart(string userId)
@@ -129,6 +137,7 @@ namespace BookShopping.Repositories
             var data = await (from cart in db.ShoppingCarts
                               join cartDetail in db.CartDetails
                               on cart.Id equals cartDetail.ShoppingCartId
+                              where userId == cart.UserId
                               select new { cartDetail.Id }
                         ).ToListAsync();
             return data.Count;
