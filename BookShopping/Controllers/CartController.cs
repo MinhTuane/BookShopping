@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace BookShopping.Controllers
 {
+    [Authorize]
     public class CartController : Controller
     {
         private readonly ICartRepository cartRepo;
