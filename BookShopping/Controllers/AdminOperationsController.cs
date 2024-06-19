@@ -40,7 +40,7 @@ namespace BookShopping.Controllers
             return RedirectToAction(nameof(AllOrders));
         }
 
-        public async Task<IActionResult> UpdatePaymentStatus(int orderId)
+        public async Task<IActionResult> UpdateOrderStatus(int orderId)
         {
             var order = await _userOrderRepository.GetOrderById(orderId);
             if (order == null)
@@ -54,26 +54,26 @@ namespace BookShopping.Controllers
                     Value = orderStatus.Id.ToString(),
                     Text = orderStatus.StatusName,
                     Selected = order.OrderStatusId == orderStatus.Id
-                });
+                }).ToList();
 
             var data = new UpdateOrderStatusModel
             {
                 OrderId = orderId,
                 OrderStatusId = order.OrderStatusId,
-                OrderStatucList = orderStatusList.ToList()
+                OrderStatusList = orderStatusList
             };
 
             return View(data);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdatePaymentStatus(UpdateOrderStatusModel data)
+        public async Task<IActionResult> UpdateOrderStatus(UpdateOrderStatusModel data)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    data.OrderStatucList = (await _userOrderRepository.GetOrderStatus())
+                    data.OrderStatusList = (await _userOrderRepository.GetOrderStatus())
                         .Select(orderStatus => new SelectListItem
                         {
                             Value = orderStatus.Id.ToString(),
@@ -93,7 +93,7 @@ namespace BookShopping.Controllers
                 // Log exception here if needed
             }
 
-            return RedirectToAction(nameof(UpdatePaymentStatus), new { orderId = data.OrderId });
+            return RedirectToAction(nameof(UpdateOrderStatus), new { orderId = data.OrderId });
         }
     }
 }
