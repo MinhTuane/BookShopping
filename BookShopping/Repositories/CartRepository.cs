@@ -113,13 +113,13 @@ namespace BookShopping.Repositories
                                     .Where(a => a.UserId == userId)
                                     .FirstOrDefaultAsync();
                                 
-            if (shoppingCart != null)
-            {
-                foreach (var cartDetail in shoppingCart.CartDetails)
-                {
-                    db.Entry(cartDetail.Book).Reference(b => b.Genre).Load();
-                }
-            }
+            //if (shoppingCart != null)
+            //{
+            //    foreach (var cartDetail in shoppingCart.CartDetails)
+            //    {
+            //        db.Entry(cartDetail.Book).Reference(b => b.Genre).Load();
+            //    }
+            //}
             return shoppingCart;
         }
         public async Task<ShoppingCart> GetCart(string userId)
@@ -174,13 +174,13 @@ namespace BookShopping.Repositories
                 var order = new Order
                 {
                     UserId = userId,
-                    OrderStatusId = pendingRecord.Id, 
-                    //Name = model.Name,
-                    //Email = model.Email,
-                    //MobileNumber = model.MobileNumber,
-                    //PaymentMethod = model.PaymentMethod,
-                    //Address = model.Address,
-                    //IsPaid =false,
+                    OrderStatusId = pendingRecord.Id,
+                    Name = model.Name,
+                    Email = model.Email,
+                    MobileNumber = model.MobileNumber,
+                    PaymentMethod = model.PaymentMethod,
+                    Address = model.Address,
+                    IsPaid = false,
                     OrderDetails = cart.CartDetails.Select(cd => new OrderDetail
                     {
                         BookId = cd.BookId,

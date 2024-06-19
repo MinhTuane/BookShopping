@@ -46,7 +46,7 @@
             <h5>Total(Vnd) : </h5>@(Model.CartDetails.Select(item=>item.Book.Price*item.Quantity).Sum())
         </div>
         <div class="my-2">
-            <a class="btn btn-outline-primary" href="#">Checkout</a>
+            <a class="btn btn-outline-primary" href="/cart/Checkout">Checkout</a>
         </div>
     }
     else

@@ -51,17 +51,17 @@ namespace BookShopping.Controllers
         {
             return View();
         }
-        //[HttpPost]
-        //public async Task<IActionResult> Checkout(CheckoutModel model)
-        //{
-        //    if (ModelState.IsValid) 
-        //        return View(model);
-        //    bool isCheckedOut = await cartRepo.DoCheckout(model);
-        //    if (!isCheckedOut)
-        //       return RedirectToAction(nameof(OrderFailure));
-        //    return RedirectToAction(nameof(OrderSuccess));
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CheckoutModel model)
+        {
+            if (ModelState.IsValid)
+                return View(model);
+            bool isCheckedOut = await cartRepo.DoCheckout(model);
+            if (!isCheckedOut)
+                return RedirectToAction(nameof(OrderFailure));
+            return RedirectToAction(nameof(OrderSuccess));
 
-        //}
+        }
 
         public IActionResult OrderSuccess()
         {
