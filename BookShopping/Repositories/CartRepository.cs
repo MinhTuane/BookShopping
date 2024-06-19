@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using BookShopping.Models.DTOs;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookShopping.Repositories
@@ -132,12 +133,69 @@ namespace BookShopping.Repositories
                         ).ToListAsync();
             return data.Count;
         }
-        private string GetUserId()
+
+        
+            private string GetUserId()
         {
             var user = hca.HttpContext.User;
             string userId = userManager.GetUserId(user);
             return userId;
         }
+
+        public async Task<bool> DoCheckout(CheckoutModel model)
+        {
+            using var transaction = db.Database.BeginTransaction();
+            string userId = GetUserId();
+            try
+            {
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new Exception("User not found");
+                }
+
+                var cart = await GetCart(userId);
+                if (cart == null || !cart.CartDetails.Any())
+                {
+                    throw new Exception("Cart is empty");
+                }
+                var pendingRecord = db.OrderStatuses.FirstOrDefault(s => s.StatusName == "Pending");
+                if (pendingRecord is null) 
+                    throw new Exception("Order status does not have Pending status");
+
+                var order = new Order
+                {
+                    UserId = userId,
+                    OrderStatusId = pendingRecord.Id, 
+                    Name = model.Name,
+                    Email = model.Email,
+                    MobileNumber = model.MobileNumber,
+                    PaymentMethod = model.PaymentMethod,
+                    Address = model.Address,
+                    IsPaid =false,
+                    OrderDetails = cart.CartDetails.Select(cd => new OrderDetail
+                    {
+                        BookId = cd.BookId,
+                        Quantity = cd.Quantity,
+                        UnitPrice = cd.Book.Price 
+                    }).ToList()
+                };
+
+                db.Orders.Add(order);
+                db.CartDetails.RemoveRange(cart.CartDetails);
+                db.ShoppingCarts.Remove(cart);
+                await db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+ 
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
+
     }
 }
 
