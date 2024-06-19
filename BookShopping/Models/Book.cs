@@ -13,7 +13,6 @@ namespace BookShopping.Models
         public double Price { get; set; }
         public string Image { get; set; }
         [Required]
-        [ForeignKey(nameof(Genre))]
         public int GenreId { get; set; }
         public Genre Genre;
         public List<OrderDetail> OrderDetails { get; set; }

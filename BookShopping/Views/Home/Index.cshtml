@@ -56,6 +56,10 @@
     <script>
         alert("hello");
         async function add(bookId) {
+            var usernameE = document.getElementById("username");
+            if(usernameE == null) {
+                window.location.href = "/Identity/Account/Login";
+            }
             try {
                 var response = await fetch(`/Cart/AddItem?bookId=${bookId}`);
                 console.log(response);
@@ -64,6 +68,7 @@
                     console.log(result);
                     var cartCountEl = document.getElementById("cartCount");
                     cartCountEl.innerHTML = result;
+                    window.location.href = "#cartCount"
                 }       
             }
             catch(err) {
