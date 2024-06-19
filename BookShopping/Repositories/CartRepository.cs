@@ -108,8 +108,8 @@ namespace BookShopping.Repositories
             }
             var shoppingCart = await db.ShoppingCarts
                                     .Include(a => a.CartDetails)
-                                    .ThenInclude(a => a.Book)
-                                    .ThenInclude(a => a.Genre)
+                                        .ThenInclude(c => c.Book)
+                     
                                     .Where(a => a.UserId == userId)
                                     .FirstOrDefaultAsync();
             return shoppingCart;
@@ -166,12 +166,12 @@ namespace BookShopping.Repositories
                 {
                     UserId = userId,
                     OrderStatusId = pendingRecord.Id, 
-                    Name = model.Name,
-                    Email = model.Email,
-                    MobileNumber = model.MobileNumber,
-                    PaymentMethod = model.PaymentMethod,
-                    Address = model.Address,
-                    IsPaid =false,
+                    //Name = model.Name,
+                    //Email = model.Email,
+                    //MobileNumber = model.MobileNumber,
+                    //PaymentMethod = model.PaymentMethod,
+                    //Address = model.Address,
+                    //IsPaid =false,
                     OrderDetails = cart.CartDetails.Select(cd => new OrderDetail
                     {
                         BookId = cd.BookId,
