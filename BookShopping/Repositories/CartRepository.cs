@@ -182,7 +182,7 @@ namespace BookShoppingCartMvcUI.Repositories
                     PaymentMethod = model.PaymentMethod,
                     Address = model.Address,
                     IsPaid = false,
-                    OrderStatusId = pendingRecord.Id
+                    //OrderStatusId = pendingRecord.Id
                 };
                 _db.Orders.Add(order);
                 _db.SaveChanges();
@@ -209,7 +209,7 @@ namespace BookShoppingCartMvcUI.Repositories
                     {
                         throw new InvalidOperationException($"Only {stock.Quantity} items(s) are available in the stock");
                     }
-                    // decrease the number of quantity from the stock table
+                    //decrease the number of quantity from the stock table
                     stock.Quantity -= item.Quantity;
                 }
                 //_db.SaveChanges();
@@ -222,7 +222,6 @@ namespace BookShoppingCartMvcUI.Repositories
             }
             catch (Exception ex)
             {
-
                 return false;
             }
         }
