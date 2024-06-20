@@ -12,56 +12,56 @@ using BookShopping.Models.DTOs;
 
 namespace BookShopping.Controllers
 {
+
     [Authorize]
     public class CartController : Controller
     {
-        private readonly ICartRepository cartRepo;
+        private readonly ICartRepository _cartRepo;
 
         public CartController(ICartRepository cartRepo)
         {
-            this.cartRepo = cartRepo;
+            _cartRepo = cartRepo;
         }
-      
-        public async Task<IActionResult> AddItem(int bookId, int qty = 1, int Redirect = 0)
+        public async Task<IActionResult> AddItem(int bookId, int qty = 1, int redirect = 0)
         {
-            var cartCount = await cartRepo.AddItem(bookId, qty);
-            if (Redirect == 0)
+            var cartCount = await _cartRepo.AddItem(bookId, qty);
+            if (redirect == 0)
                 return Ok(cartCount);
             return RedirectToAction("GetUserCart");
-
-
         }
-        [HttpPost]
+
         public async Task<IActionResult> RemoveItem(int bookId)
         {
-            var cartCount = await cartRepo.RemoveItem(bookId);
+            var cartCount = await _cartRepo.RemoveItem(bookId);
             return RedirectToAction("GetUserCart");
         }
         public async Task<IActionResult> GetUserCart()
         {
-            var cart = await cartRepo.GetCarts();
+            var cart = await _cartRepo.GetUserCart();
             return View(cart);
         }
+
         public async Task<IActionResult> GetTotalItemInCart()
         {
-            int cartItem = await cartRepo.GetCartCount();
+            int cartItem = await _cartRepo.GetCartItemCount();
             return Ok(cartItem);
         }
+
         public IActionResult Checkout()
         {
             return View();
         }
-        //[HttpPost]
-        //public async Task<IActionResult> Checkout(CheckoutModel model)
-        //{
-        //    if (ModelState.IsValid) 
-        //        return View(model);
-        //    bool isCheckedOut = await cartRepo.DoCheckout(model);
-        //    if (!isCheckedOut)
-        //       return RedirectToAction(nameof(OrderFailure));
-        //    return RedirectToAction(nameof(OrderSuccess));
 
-        //}
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CheckoutModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+            bool isCheckedOut = await _cartRepo.DoCheckout(model);
+            if (!isCheckedOut)
+                return RedirectToAction(nameof(OrderFailure));
+            return RedirectToAction(nameof(OrderSuccess));
+        }
 
         public IActionResult OrderSuccess()
         {
@@ -72,5 +72,6 @@ namespace BookShopping.Controllers
         {
             return View();
         }
+
     }
 }

@@ -42,11 +42,19 @@
             <div class="card-body">
                 <h5 class="card-title">@book.Name</h5>
                 <p class="card-text">
-                    Genre:@book.GenreName
-                    Author:@book.Author
-                    Price:@book.Price
+                    <b>Genre: </b>@book.GenreName <br />
+                    <b>Author: </b>@book.Name <br />
+                    <b>Price: </b>@book.Price
+                    @* <br/> <b>@book.Quantity</b> *@
                 </p>
-                <button type="button" class="btn btn-primary" onclick="add(@book.Id)">Add to Cart</button>
+                @if (book.Quantity > 0)
+                {
+                    <button type="button" onclick="add(@book.Id)" class="btn btn-primary">Add to cart</button>
+                }
+                else
+                {
+                    <span style="border: 1px solid;padding: 5px 8px;color: red;border-radius: 5px;">Out of stock</span>
+                }
             </div>
         </div>
     }
@@ -54,24 +62,25 @@
 
 @section Scripts {
     <script>
-        alert("hello");
         async function add(bookId) {
-            var usernameE = document.getElementById("username");
-            if(usernameE == null) {
+            var usernameEl = document.getElementById("username");
+            if (usernameEl == null) {
                 window.location.href = "/Identity/Account/Login";
+                //var username=usernameEl.innerText;
+                //  if(username.length<1){
+                //      window.location.href="/Identity/Account/Login";
+                //  }
             }
             try {
                 var response = await fetch(`/Cart/AddItem?bookId=${bookId}`);
-                console.log(response);
-                if(response.status ==200){
+                if (response.status == 200) {
                     var result = await response.json();
-                    console.log(result);
                     var cartCountEl = document.getElementById("cartCount");
                     cartCountEl.innerHTML = result;
-                    window.location.href = "#cartCount"
-                }       
+                    window.location.href = "#cartCount";
+                }
             }
-            catch(err) {
+            catch (err) {
                 console.log(err);
             }
         }
