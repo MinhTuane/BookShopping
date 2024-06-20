@@ -1,5 +1,6 @@
 using BookShopping;
 using BookShopping.Data;
+using BookShopping.Shared;
 using BookShoppingCartMvcUI.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,15 +20,17 @@ builder.Services.AddIdentity<IdentityUser,IdentityRole>(options => options.SignI
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IHomeRepository, HomeRepository>();
 builder.Services.AddTransient<ICartRepository, CartRepository>();
-builder.Services.AddTransient<IUserOrderRepository, UserOrderReposioty>();
+builder.Services.AddTransient<IUserOrderRepository, UserOrderRepository>();
 builder.Services.AddTransient<IStockRepository, StockRepository>();
 builder.Services.AddTransient<IGenreRepository, GenreRepository>();
+builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IBookRepository, BookRepository>();
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await SeedData.SeedDefaultData(services);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    await SeedData.SeedDefaultData(services);
+//}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

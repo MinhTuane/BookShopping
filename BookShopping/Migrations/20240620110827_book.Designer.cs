@@ -4,6 +4,7 @@ using BookShopping.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookShopping.Migrations
 {
     [DbContext(typeof(BookDbContext))]
-    partial class BookDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240620110827_book")]
+    partial class book
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,9 +123,7 @@ namespace BookShopping.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -155,7 +156,7 @@ namespace BookShopping.Migrations
 
                     b.HasIndex("OrderStatusId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("BookShopping.Models.OrderDetail", b =>
@@ -184,7 +185,7 @@ namespace BookShopping.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderDetail");
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("BookShopping.Models.OrderStatus", b =>
@@ -200,12 +201,11 @@ namespace BookShopping.Migrations
 
                     b.Property<string>("StatusName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderStatus");
+                    b.ToTable("OrderStatuses");
                 });
 
             modelBuilder.Entity("BookShopping.Models.ShoppingCart", b =>
@@ -498,7 +498,7 @@ namespace BookShopping.Migrations
                         .IsRequired();
 
                     b.HasOne("BookShopping.Models.Order", "Order")
-                        .WithMany("OrderDetail")
+                        .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -586,7 +586,7 @@ namespace BookShopping.Migrations
 
             modelBuilder.Entity("BookShopping.Models.Order", b =>
                 {
-                    b.Navigation("OrderDetail");
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("BookShopping.Models.ShoppingCart", b =>

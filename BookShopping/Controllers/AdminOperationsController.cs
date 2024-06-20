@@ -14,7 +14,6 @@ namespace BookShopping.Controllers
     public class AdminOperationsController : Controller
     {
         private readonly IUserOrderRepository _userOrderRepository;
-
         public AdminOperationsController(IUserOrderRepository userOrderRepository)
         {
             _userOrderRepository = userOrderRepository;
@@ -22,7 +21,7 @@ namespace BookShopping.Controllers
 
         public async Task<IActionResult> AllOrders()
         {
-            var orders = await _userOrderRepository.UserOder(true);
+            var orders = await _userOrderRepository.UserOrders(true);
             return View(orders);
         }
 
@@ -34,8 +33,7 @@ namespace BookShopping.Controllers
             }
             catch (Exception ex)
             {
-                // Log exception here if needed
-                TempData["msg"] = "Error toggling payment status";
+                // log exception here
             }
             return RedirectToAction(nameof(AllOrders));
         }
@@ -45,24 +43,18 @@ namespace BookShopping.Controllers
             var order = await _userOrderRepository.GetOrderById(orderId);
             if (order == null)
             {
-                throw new InvalidOperationException($"Order with id: {orderId} not found");
+                throw new InvalidOperationException($"Order with id:{orderId} does not found.");
             }
-
-            var orderStatusList = (await _userOrderRepository.GetOrderStatus())
-                .Select(orderStatus => new SelectListItem
-                {
-                    Value = orderStatus.Id.ToString(),
-                    Text = orderStatus.StatusName,
-                    Selected = order.OrderStatusId == orderStatus.Id
-                }).ToList();
-
+            var orderStatusList = (await _userOrderRepository.GetOrderStatus()).Select(orderStatus =>
+            {
+                return new SelectListItem { Value = orderStatus.Id.ToString(), Text = orderStatus.StatusName, Selected = order.OrderStatusId == orderStatus.Id };
+            });
             var data = new UpdateOrderStatusModel
             {
                 OrderId = orderId,
                 OrderStatusId = order.OrderStatusId,
                 OrderStatusList = orderStatusList
             };
-
             return View(data);
         }
 
@@ -73,27 +65,29 @@ namespace BookShopping.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    data.OrderStatusList = (await _userOrderRepository.GetOrderStatus())
-                        .Select(orderStatus => new SelectListItem
-                        {
-                            Value = orderStatus.Id.ToString(),
-                            Text = orderStatus.StatusName,
-                            Selected = orderStatus.Id == data.OrderStatusId
-                        }).ToList();
+                    data.OrderStatusList = (await _userOrderRepository.GetOrderStatus()).Select(orderStatus =>
+                    {
+                        return new SelectListItem { Value = orderStatus.Id.ToString(), Text = orderStatus.StatusName, Selected = orderStatus.Id == data.OrderStatusId };
+                    });
 
                     return View(data);
                 }
-
                 await _userOrderRepository.ChangeOrderStatus(data);
                 TempData["msg"] = "Updated successfully";
             }
             catch (Exception ex)
             {
+                // catch exception here
                 TempData["msg"] = "Something went wrong";
-                // Log exception here if needed
             }
-
             return RedirectToAction(nameof(UpdateOrderStatus), new { orderId = data.OrderId });
         }
+
+
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
     }
 }

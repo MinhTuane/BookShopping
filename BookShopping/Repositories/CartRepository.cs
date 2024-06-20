@@ -21,7 +21,6 @@ namespace BookShoppingCartMvcUI.Repositories
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
         }
-
         public async Task<int> AddItem(int bookId, int qty)
         {
             string userId = GetUserId();
@@ -29,86 +28,73 @@ namespace BookShoppingCartMvcUI.Repositories
             try
             {
                 if (string.IsNullOrEmpty(userId))
-                    throw new UnauthorizedAccessException("User is not logged in");
-
+                    throw new UnauthorizedAccessException("user is not logged-in");
                 var cart = await GetCart(userId);
-                if (cart == null)
+                if (cart is null)
                 {
                     cart = new ShoppingCart
                     {
                         UserId = userId
                     };
                     _db.ShoppingCarts.Add(cart);
-                    await _db.SaveChangesAsync();
                 }
-
-                var cartItem = _db.CartDetails.FirstOrDefault(a => a.ShoppingCartId == cart.Id && a.BookId == bookId);
-                if (cartItem != null)
+                _db.SaveChanges();
+                // cart detail section
+                var cartItem = _db.CartDetails
+                                  .FirstOrDefault(a => a.ShoppingCartId == cart.Id && a.BookId == bookId);
+                if (cartItem is not null)
                 {
                     cartItem.Quantity += qty;
                 }
                 else
                 {
-                    var book = await _db.Books.FindAsync(bookId);
-                    if (book == null)
-                        throw new InvalidOperationException("Book not found");
-
+                    var book = _db.Books.Find(bookId);
                     cartItem = new CartDetail
                     {
                         BookId = bookId,
                         ShoppingCartId = cart.Id,
                         Quantity = qty,
-                        UnitPrice = book.Price
+                        UnitPrice = book.Price  // it is a new line after update
                     };
                     _db.CartDetails.Add(cartItem);
                 }
-
-                await _db.SaveChangesAsync();
+                _db.SaveChanges();
                 transaction.Commit();
             }
             catch (Exception ex)
             {
-                // Handle exception appropriately, log if needed
-                throw;
             }
-
             var cartItemCount = await GetCartItemCount(userId);
             return cartItemCount;
         }
 
+
         public async Task<int> RemoveItem(int bookId)
         {
+            //using var transaction = _db.Database.BeginTransaction();
             string userId = GetUserId();
             try
             {
                 if (string.IsNullOrEmpty(userId))
-                    throw new UnauthorizedAccessException("User is not logged in");
-
+                    throw new UnauthorizedAccessException("user is not logged-in");
                 var cart = await GetCart(userId);
-                if (cart == null)
+                if (cart is null)
                     throw new InvalidOperationException("Invalid cart");
-
-                var cartItem = _db.CartDetails.FirstOrDefault(a => a.ShoppingCartId == cart.Id && a.BookId == bookId);
-                if (cartItem == null)
-                    throw new InvalidOperationException("No items in cart");
-
-                if (cartItem.Quantity == 1)
-                {
+                // cart detail section
+                var cartItem = _db.CartDetails
+                                  .FirstOrDefault(a => a.ShoppingCartId == cart.Id && a.BookId == bookId);
+                if (cartItem is null)
+                    throw new InvalidOperationException("Not items in cart");
+                else if (cartItem.Quantity == 1)
                     _db.CartDetails.Remove(cartItem);
-                }
                 else
-                {
-                    cartItem.Quantity -= 1;
-                }
-
-                await _db.SaveChangesAsync();
+                    cartItem.Quantity = cartItem.Quantity - 1;
+                _db.SaveChanges();
             }
             catch (Exception ex)
             {
-                // Handle exception appropriately, log if needed
-                throw;
-            }
 
+            }
             var cartItemCount = await GetCartItemCount(userId);
             return cartItemCount;
         }
@@ -124,31 +110,29 @@ namespace BookShoppingCartMvcUI.Repositories
                                   .ThenInclude(a => a.Stock)
                                   .Include(a => a.CartDetails)
                                   .ThenInclude(a => a.Book)
-                                  //.ThenInclude(a => a.Genre)
+                                  .ThenInclude(a => a.Genre)
                                   .Where(a => a.UserId == userId).FirstOrDefaultAsync();
             return shoppingCart;
-        }
 
+        }
         public async Task<ShoppingCart> GetCart(string userId)
         {
             var cart = await _db.ShoppingCarts.FirstOrDefaultAsync(x => x.UserId == userId);
             return cart;
         }
 
-        public async Task<int> GetCartItemCount(string userId = null)
+        public async Task<int> GetCartItemCount(string userId = "")
         {
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId)) // updated line
             {
                 userId = GetUserId();
             }
-
             var data = await (from cart in _db.ShoppingCarts
                               join cartDetail in _db.CartDetails
                               on cart.Id equals cartDetail.ShoppingCartId
-                              where cart.UserId == userId
+                              where cart.UserId==userId // updated line
                               select new { cartDetail.Id }
                         ).ToListAsync();
-
             return data.Count;
         }
 
@@ -169,20 +153,20 @@ namespace BookShoppingCartMvcUI.Repositories
                                     .Where(a => a.ShoppingCartId == cart.Id).ToList();
                 if (cartDetail.Count == 0)
                     throw new InvalidOperationException("Cart is empty");
-                var pendingRecord = _db.OrderStatuses.FirstOrDefault(s => s.StatusName == "Pending");
+                var pendingRecord = _db.OrderStatus.FirstOrDefault(s => s.StatusName == "Pending");
                 if (pendingRecord is null)
                     throw new InvalidOperationException("Order status does not have Pending status");
                 var order = new Order
                 {
                     UserId = userId,
                     CreateDate = DateTime.UtcNow,
-                    Name = model.Name,
-                    Email = model.Email,
-                    MobileNumber = model.MobileNumber,
-                    PaymentMethod = model.PaymentMethod,
-                    Address = model.Address,
-                    IsPaid = false,
-                    //OrderStatusId = pendingRecord.Id
+                    Name=model.Name,
+                    Email=model.Email,
+                    MobileNumber=model.MobileNumber,
+                    PaymentMethod=model.PaymentMethod,
+                    Address=model.Address,
+                    IsPaid=false,
+                    OrderStatusId = pendingRecord.Id
                 };
                 _db.Orders.Add(order);
                 _db.SaveChanges();
@@ -209,7 +193,7 @@ namespace BookShoppingCartMvcUI.Repositories
                     {
                         throw new InvalidOperationException($"Only {stock.Quantity} items(s) are available in the stock");
                     }
-                    //decrease the number of quantity from the stock table
+                    // decrease the number of quantity from the stock table
                     stock.Quantity -= item.Quantity;
                 }
                 //_db.SaveChanges();
@@ -222,6 +206,7 @@ namespace BookShoppingCartMvcUI.Repositories
             }
             catch (Exception ex)
             {
+
                 return false;
             }
         }

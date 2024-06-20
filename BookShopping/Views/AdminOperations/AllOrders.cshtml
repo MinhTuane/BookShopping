@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<Order>
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "AllOrders";
 }
 
@@ -37,7 +38,7 @@
                         <a asp-action="TogglePaymentStatus" asp-route-orderId="@order.Id" class="btn btn-info">Toggle Payment Status</a>
 
                         @await Html.PartialAsync("/Views/AdminOperations/_OrderDetailModal.cshtml",new OrderDetailModalDTO{DivId=order.Id.ToString(),
-                        OrderDetails=order.OrderDetails})
+                        OrderDetails=order.OrderDetail})
                     </td>
                 </tr>
             }

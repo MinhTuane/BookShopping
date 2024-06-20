@@ -18,7 +18,7 @@
                     <td>@order.CreateDate.ToString("dd-MM-yyyy")</td>
                     <td>@order.OrderStatus.StatusName</td>
                 </tr>
-                @if (order.OrderDetails != null && order.OrderDetails.Count > 0)
+                @if (order.OrderDetail != null && order.OrderDetail.Count > 0)
                 {
                     <tr>
                         <td>
@@ -28,7 +28,7 @@
                                         Total:
                                     </td>
                                     <td>
-                                        @(order.OrderDetails.Select(item => item.Book.Price * item.Quantity).Sum())
+                                        @(order.OrderDetail.Select(item => item.Book.Price * item.Quantity).Sum())
 
                                     </td>
                                 </tr>
@@ -39,7 +39,7 @@
                                     <th>Unit Price(INR)</th>
                                     <th>Total Price</th>
                                 </tr>
-                                @foreach (var item in order.OrderDetails)
+                                @foreach (var item in order.OrderDetail)
                                 {
                                     <tr>
                                         <td>@item.Book.Name</td>
