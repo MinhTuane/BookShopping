@@ -124,7 +124,7 @@ namespace BookShoppingCartMvcUI.Repositories
                                   .ThenInclude(a => a.Stock)
                                   .Include(a => a.CartDetails)
                                   .ThenInclude(a => a.Book)
-                                  //.ThenInclude(a => a.Genre)
+                                  .ThenInclude(a => a.Genre)
                                   .Where(a => a.UserId == userId).FirstOrDefaultAsync();
             return shoppingCart;
         }
