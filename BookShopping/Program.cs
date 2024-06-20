@@ -19,7 +19,9 @@ builder.Services.AddIdentity<IdentityUser,IdentityRole>(options => options.SignI
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IHomeRepository, HomeRepository>();
 builder.Services.AddTransient<ICartRepository, CartRepository>();
+builder.Services.AddTransient<IUserOrderRepository, UserOrderReposioty>();
 builder.Services.AddTransient<IStockRepository, StockRepository>();
+builder.Services.AddTransient<IGenreRepository, GenreRepository>();
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
