@@ -1,10 +1,10 @@
-﻿using BookShopping.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using BookShopping.Models;
 
 namespace BookShopping.Data
 {
-    public class BookDbContext : IdentityDbContext
+    public class BookDbContext : IdentityDbContext<ApplicationUser>
     {
         public BookDbContext(DbContextOptions<BookDbContext> options)
             : base(options)
@@ -21,6 +21,7 @@ namespace BookShopping.Data
         public DbSet<CartDetail> CartDetails { get; set; }
 
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<BookShopping.Models.Discount> Discount { get; set; }
 
     }
 }

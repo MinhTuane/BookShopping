@@ -1,6 +1,4 @@
-﻿using BookShopping.Models.DTOs;
-
-namespace BookShopping
+﻿namespace BookShopping
 {
     public interface ICartRepository
     {
@@ -9,6 +7,7 @@ namespace BookShopping
         Task<ShoppingCart> GetUserCart();
         Task<int> GetCartItemCount(string userId = "");
         Task<ShoppingCart> GetCart(string userId);
-        Task<bool> DoCheckout(CheckoutModel model);
+        Task<bool> DoCheckout(CheckoutModel model, double totalPrice);
+        Task<Discount> GetDiscounts(string code);
     }
 }

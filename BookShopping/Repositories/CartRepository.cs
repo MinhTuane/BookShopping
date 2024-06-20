@@ -1,21 +1,17 @@
 ﻿using BookShopping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace BookShoppingCartMvcUI.Repositories
 {
     public class CartRepository : ICartRepository
     {
         private readonly BookDbContext _db;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CartRepository(BookDbContext db, IHttpContextAccessor httpContextAccessor,
-            UserManager<IdentityUser> userManager)
+            UserManager<ApplicationUser> userManager)
         {
             _db = db;
             _userManager = userManager;
@@ -152,7 +148,7 @@ namespace BookShoppingCartMvcUI.Repositories
             return data.Count;
         }
 
-        public async Task<bool> DoCheckout(CheckoutModel model)
+        public async Task<bool> DoCheckout(CheckoutModel model, double totalPrice)
         {
             using var transaction = _db.Database.BeginTransaction();
             try
@@ -182,7 +178,8 @@ namespace BookShoppingCartMvcUI.Repositories
                     PaymentMethod = model.PaymentMethod,
                     Address = model.Address,
                     IsPaid = false,
-                    //OrderStatusId = pendingRecord.Id
+                    OrderStatusId = pendingRecord.Id,
+                    TotalPrice = totalPrice,
                 };
                 _db.Orders.Add(order);
                 _db.SaveChanges();
@@ -233,6 +230,9 @@ namespace BookShoppingCartMvcUI.Repositories
             return userId;
         }
 
-
+        public Task<Discount> GetDiscounts(string code)
+        {
+            return _db.Discount.FirstOrDefaultAsync(a => a.Code == code);
+        }
     }
 }

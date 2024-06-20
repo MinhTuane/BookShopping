@@ -1,12 +1,6 @@
-﻿using BookShopping.Contents;
-using BookShopping.Models.DTOs;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BookShopping.Controllers
 {
@@ -22,7 +16,7 @@ namespace BookShopping.Controllers
 
         public async Task<IActionResult> AllOrders()
         {
-            var orders = await _userOrderRepository.UserOder(true);
+            var orders = await _userOrderRepository.UserOrder(true);
             return View(orders);
         }
 

@@ -1,8 +1,5 @@
-﻿using BookShopping.Contents;
-using BookShopping.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BookShopping.Data
 {
@@ -10,13 +7,13 @@ namespace BookShopping.Data
     {
         public static async Task SeedDefaultData(IServiceProvider service)
         {
-            var UserMng = service.GetService<UserManager<IdentityUser>>();
+            var UserMng = service.GetService<UserManager<ApplicationUser>>();
             var RoleMng = service.GetService<RoleManager<IdentityRole>>();
 
             await RoleMng.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
             await RoleMng.CreateAsync(new IdentityRole(Roles.User.ToString()));
 
-            var admin = new IdentityUser
+            var admin = new ApplicationUser
             {
                 UserName = "admin@gmail.com",
                 Email = "admin@gmail.com",
@@ -34,39 +31,39 @@ namespace BookShopping.Data
            service.GetRequiredService<
                DbContextOptions<BookDbContext>>()))
             {
-                var genres = new List<Genre>
-                                {
-                                    new Genre { GenreName = "Adventure" },
-                new Genre {  GenreName = "Fantasy" },
-                new Genre {  GenreName = "Science Fiction" },
-                new Genre {  GenreName = "Mystery" },
-                new Genre {  GenreName = "Thriller" },
-                new Genre {  GenreName = "Romance" },
-                new Genre {  GenreName = "Horror" },
-                new Genre {  GenreName = "Historical Fiction" },
-                new Genre {  GenreName = "Non-Fiction" },
-                new Genre { GenreName = "Biography" },
-                new Genre {  GenreName = "Self-Help" },
-                new Genre {  GenreName = "Graphic Novel" },
-                new Genre {  GenreName = "Memoir" },
-                new Genre {  GenreName = "Classic" },
-                new Genre {  GenreName = "Poetry" },
-                new Genre {  GenreName = "Crime" },
-                new Genre {  GenreName = "Drama" },
-                new Genre {  GenreName = "Young Adult" },
-                new Genre { GenreName = "Children's" },
-                new Genre { GenreName = "Dystopian" },
-                new Genre { GenreName = "Humor" },
-                new Genre { GenreName = "Travel" },
-                new Genre { GenreName = "Spiritual" },
-                new Genre { GenreName = "Philosophy" },
-                new Genre { GenreName = "Educational" }
-                                };
-                if (!context.Genres.Any())
-                {
-                    context.Genres.AddRange(genres);
-                    context.SaveChanges();
-                }
+                //var genres = new List<Genre>
+                //                {
+                //                    new Genre { GenreName = "Adventure" },
+                //new Genre {  GenreName = "Fantasy" },
+                //new Genre {  GenreName = "Science Fiction" },
+                //new Genre {  GenreName = "Mystery" },
+                //new Genre {  GenreName = "Thriller" },
+                //new Genre {  GenreName = "Romance" },
+                //new Genre {  GenreName = "Horror" },
+                //new Genre {  GenreName = "Historical Fiction" },
+                //new Genre {  GenreName = "Non-Fiction" },
+                //new Genre { GenreName = "Biography" },
+                //new Genre {  GenreName = "Self-Help" },
+                //new Genre {  GenreName = "Graphic Novel" },
+                //new Genre {  GenreName = "Memoir" },
+                //new Genre {  GenreName = "Classic" },
+                //new Genre {  GenreName = "Poetry" },
+                //new Genre {  GenreName = "Crime" },
+                //new Genre {  GenreName = "Drama" },
+                //new Genre {  GenreName = "Young Adult" },
+                //new Genre { GenreName = "Children's" },
+                //new Genre { GenreName = "Dystopian" },
+                //new Genre { GenreName = "Humor" },
+                //new Genre { GenreName = "Travel" },
+                //new Genre { GenreName = "Spiritual" },
+                //new Genre { GenreName = "Philosophy" },
+                //new Genre { GenreName = "Educational" }
+                //                };
+                //if (!context.Genres.Any())
+                //{
+                //    context.Genres.AddRange(genres);
+                //    context.SaveChanges();
+                //}
 
                 if (!context.Books.Any())
                 {
@@ -157,6 +154,6 @@ namespace BookShopping.Data
 
             }
         }
-        }
     }
+}
 

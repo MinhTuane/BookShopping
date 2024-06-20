@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BookShopping.Models.DTOs;
-using BookShopping.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookShopping.Repositories
@@ -14,10 +7,10 @@ namespace BookShopping.Repositories
     {
         private readonly BookDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public UserOrderReposioty(BookDbContext db,
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
              IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
@@ -57,12 +50,6 @@ namespace BookShopping.Repositories
             order.IsPaid = !order.IsPaid;
             await _db.SaveChangesAsync();
         }
-
-        public Task<IEnumerable<Order>> UserOder(bool getAll = false)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<IEnumerable<Order>> UserOrder(bool getAll = false)
         {
             var orders = _db.Orders
@@ -82,7 +69,7 @@ namespace BookShopping.Repositories
 
                 orders = orders.Where(x => x.UserId == userId);
             }
-
+            orders = orders.OrderByDescending(o => o.CreateDate);
             return await orders.ToListAsync();
         }
 

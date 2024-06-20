@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using BookShopping.Data;
-using BookShopping.Models;
-using Microsoft.AspNetCore.Authorization;
-using BookShopping.Models.DTOs;
 
 namespace BookShopping.Controllers
 {
@@ -24,15 +15,38 @@ namespace BookShopping.Controllers
         }
         public async Task<IActionResult> AddItem(int bookId, int qty = 1, int redirect = 0)
         {
-            var cartCount = await _cartRepo.AddItem(bookId, qty);
-            if (redirect == 0)
-                return Ok(cartCount);
+            if (ModelState.IsValid)
+            {
+                var cartCount = await _cartRepo.AddItem(bookId, qty);
+                if (redirect == 0)
+                    return Ok(cartCount);
+            }
+
             return RedirectToAction("GetUserCart");
         }
 
+        public async Task<IActionResult> GetDiscount(string code)
+        {
+            var discount = await _cartRepo.GetDiscounts(code);
+            if (discount == null)
+            {
+                ViewData["DcMessage"] = "Wrong Discount Code";
+                ViewData["Discount"] = 0;
+            }
+            else
+            {
+                ViewData["DcMessage"] = "Apply Discount Successful";
+                ViewData["Discount"] = discount.Rate;
+            }
+            var cart = await _cartRepo.GetUserCart();
+            return View("GetUserCart", cart);
+        }
         public async Task<IActionResult> RemoveItem(int bookId)
         {
-            var cartCount = await _cartRepo.RemoveItem(bookId);
+            if (ModelState.IsValid)
+            {
+                var cartCount = await _cartRepo.RemoveItem(bookId);
+            }
             return RedirectToAction("GetUserCart");
         }
         public async Task<IActionResult> GetUserCart()
@@ -53,11 +67,11 @@ namespace BookShopping.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Checkout(CheckoutModel model)
+        public async Task<IActionResult> Checkout(CheckoutModel model, double totalPrice)
         {
             if (!ModelState.IsValid)
                 return View(model);
-            bool isCheckedOut = await _cartRepo.DoCheckout(model);
+            bool isCheckedOut = await _cartRepo.DoCheckout(model, totalPrice);
             if (!isCheckedOut)
                 return RedirectToAction(nameof(OrderFailure));
             return RedirectToAction(nameof(OrderSuccess));

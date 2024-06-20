@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookShopping.Models
 {
-    [Table("CartDetail")]
     public class CartDetail
     {
         public int Id { get; set; }

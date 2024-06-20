@@ -13,7 +13,7 @@
                 <th>Book</th>
                 <th>Image</th>
                 <th>Genre</th>
-                <th>Unit Price(INR)</th>
+                <th>Unit Price(usd)</th>
                 <th>Total Price</th>
                 <th>Action</th>
             </tr>
@@ -52,13 +52,32 @@
             }
         </table>
 
-        <div class="my-2">
-            <h5>Total(INR): </h5>
-            @(Model.CartDetails.Select(item => item.Book.Price * item.Quantity).Sum())
-        </div>
+        var total = Model.CartDetails.Select(item => item.Book.Price * item.Quantity).Sum();
+        double discount = 0;
+        if(ViewData["Discount"]!=null)
+        {
+            discount = (double)ViewData["Discount"];
+        }
+        total = Math.Round(total * (1-discount),2) ;
+        <div class="row w-100">
+            <div class="my-2 col-1 w-50">
+                <h5>Total(usd): @total</h5>
 
+            </div>
+            <div class="col-1 w-50">
+                <form asp-action="GetDiscount">
+                    <span class="text-bg-danger">@ViewData["DcMessage"]</span>
+                    <input name="code" id="code"/>
+                    <button type="submit" class="btn btn-outline-primary">Apply</button>
+                </form>
+               
+            </div>
+        </div>
         <div class="my-2">
-            <a class="btn btn-primary" href="/Cart/Checkout">Checkout</a>
+            <form asp-action="Checkout">
+                <input type="hidden" id="totalPrice" name="totalPrice" value="@total" />
+                <button type="submit" class="btn btn-primary">Checkout</button>
+            </form>
         </div>
 
     }

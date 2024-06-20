@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 namespace BookShopping.Models
 {
 
-    [Table("Genre")]
     public class Genre
     {
         public int Id { get; set; }

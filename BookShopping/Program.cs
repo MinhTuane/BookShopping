@@ -1,5 +1,4 @@
 using BookShopping;
-using BookShopping.Data;
 using BookShoppingCartMvcUI.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,7 @@ builder.Services.AddDbContext<BookDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<IdentityUser,IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<BookDbContext>()
     .AddDefaultUI()
     .AddDefaultTokenProviders();
@@ -23,11 +22,11 @@ builder.Services.AddTransient<IUserOrderRepository, UserOrderReposioty>();
 builder.Services.AddTransient<IStockRepository, StockRepository>();
 builder.Services.AddTransient<IGenreRepository, GenreRepository>();
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await SeedData.SeedDefaultData(services);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    await SeedData.SeedDefaultData(services);
+//}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

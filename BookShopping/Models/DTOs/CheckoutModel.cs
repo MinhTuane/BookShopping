@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace BookShopping.Models.DTOs
 {
@@ -7,7 +8,7 @@ namespace BookShopping.Models.DTOs
         [Required]
         [MaxLength(30)]
         public string? Name { get; set; }
-       
+
         [EmailAddress]
         public string? Email { get; set; }
         [Required]
@@ -18,5 +19,7 @@ namespace BookShopping.Models.DTOs
         [Required]
         [MaxLength(30)]
         public string PaymentMethod { get; set; }
+        [HiddenInput]
+        public double TotalAmount { get; set; }
     }
 }

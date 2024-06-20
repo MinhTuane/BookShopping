@@ -56,7 +56,7 @@ namespace BookShopping.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    GenreName = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -203,9 +203,9 @@ namespace BookShopping.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Author = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<double>(type: "float", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    Author = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    Price = table.Column<double>(type: "float", maxLength: 50, nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GenreId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -229,7 +229,13 @@ namespace BookShopping.Migrations
                     UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OrderStatusId = table.Column<int>(type: "int", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -243,28 +249,49 @@ namespace BookShopping.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartDetail",
+                name: "CartDetails",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ShoppingCartId = table.Column<int>(type: "int", nullable: false),
                     BookId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartDetail", x => x.Id);
+                    table.PrimaryKey("PK_CartDetails", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CartDetail_Books_BookId",
+                        name: "FK_CartDetails_Books_BookId",
                         column: x => x.BookId,
                         principalTable: "Books",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CartDetail_ShoppingCarts_ShoppingCartId",
+                        name: "FK_CartDetails_ShoppingCarts_ShoppingCartId",
                         column: x => x.ShoppingCartId,
                         principalTable: "ShoppingCarts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Stocks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stocks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Stocks_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -342,13 +369,13 @@ namespace BookShopping.Migrations
                 column: "GenreId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartDetail_BookId",
-                table: "CartDetail",
+                name: "IX_CartDetails_BookId",
+                table: "CartDetails",
                 column: "BookId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartDetail_ShoppingCartId",
-                table: "CartDetail",
+                name: "IX_CartDetails_ShoppingCartId",
+                table: "CartDetails",
                 column: "ShoppingCartId");
 
             migrationBuilder.CreateIndex(
@@ -365,6 +392,12 @@ namespace BookShopping.Migrations
                 name: "IX_Orders_OrderStatusId",
                 table: "Orders",
                 column: "OrderStatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Stocks_BookId",
+                table: "Stocks",
+                column: "BookId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -386,10 +419,13 @@ namespace BookShopping.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CartDetail");
+                name: "CartDetails");
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
+
+            migrationBuilder.DropTable(
+                name: "Stocks");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -401,16 +437,16 @@ namespace BookShopping.Migrations
                 name: "ShoppingCarts");
 
             migrationBuilder.DropTable(
-                name: "Books");
-
-            migrationBuilder.DropTable(
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "Genres");
+                name: "Books");
 
             migrationBuilder.DropTable(
                 name: "OrderStatuses");
+
+            migrationBuilder.DropTable(
+                name: "Genres");
         }
     }
 }
