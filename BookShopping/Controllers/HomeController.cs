@@ -18,7 +18,16 @@ namespace BookShopping.Controllers
         public async Task<IActionResult> Index(string sterm="",int genreId=0)
         {
             IEnumerable<Book> books = await _homeRepository.GetBooks(sterm,genreId);
-            return View(books);
+            IEnumerable<Genre> genres = await _homeRepository.GetGenres();
+            BookDisplayModel bookModel = new()
+            {
+                Books = books,
+                Genres = genres,
+                Sterm = sterm,
+                genId = genreId
+            };
+
+            return View(bookModel);
         }
 
         public IActionResult Privacy()
