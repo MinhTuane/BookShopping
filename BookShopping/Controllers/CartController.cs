@@ -31,7 +31,6 @@ namespace BookShopping.Controllers
             if (discount == null)
             {
                 ViewData["DcMessage"] = "Wrong Discount Code";
-                ViewData["Discount"] = 0;
             }
             else
             {
@@ -61,17 +60,18 @@ namespace BookShopping.Controllers
             return Ok(cartItem);
         }
 
-        public IActionResult Checkout()
+        public IActionResult Checkout(CheckoutModel model, double totalPrice = 0)
         {
-            return View();
+            model.TotalAmount = totalPrice;
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Checkout(CheckoutModel model, double totalPrice)
+        public async Task<IActionResult> CheckoutDetail(CheckoutModel model)
         {
             if (!ModelState.IsValid)
-                return View(model);
-            bool isCheckedOut = await _cartRepo.DoCheckout(model, totalPrice);
+                return View("Checkout", model);
+            bool isCheckedOut = await _cartRepo.DoCheckout(model);
             if (!isCheckedOut)
                 return RedirectToAction(nameof(OrderFailure));
             return RedirectToAction(nameof(OrderSuccess));

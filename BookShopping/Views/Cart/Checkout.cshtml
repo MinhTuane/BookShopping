@@ -4,7 +4,7 @@
 }
 
 <h2>Checkout</h2>
-<form asp-action="Checkout">
+<form asp-action="CheckoutDetail">
     <div class="py-2">
         <label asp-for="Name">Name*</label>
         <input type="text" class="form-control" asp-for="Name" />
@@ -45,8 +45,8 @@
     </div>
 
     <div class="py-2">
-        <input type="hidden" id="totalPrice" name="totalPrice" value="@Model.TotalAmount" />
-        <button type="submit" c class="btn btn-info">Next</button>
+        <input type="hidden" asp-for="TotalAmount" value="@Model.TotalAmount" />
+        <button type="submit" class="btn btn-info">Next</button>
 
     </div>
 </form>

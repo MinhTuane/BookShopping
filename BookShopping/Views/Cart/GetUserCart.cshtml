@@ -53,10 +53,10 @@
         </table>
 
         var total = Model.CartDetails.Select(item => item.Book.Price * item.Quantity).Sum();
-        double discount = 0;
+        float discount = 0;
         if(ViewData["Discount"]!=null)
         {
-            discount = (double)ViewData["Discount"];
+            discount = (float)ViewData["Discount"];
         }
         total = Math.Round(total * (1-discount),2) ;
         <div class="row w-100">

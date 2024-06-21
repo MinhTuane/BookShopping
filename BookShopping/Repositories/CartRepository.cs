@@ -148,7 +148,7 @@ namespace BookShoppingCartMvcUI.Repositories
             return data.Count;
         }
 
-        public async Task<bool> DoCheckout(CheckoutModel model, double totalPrice)
+        public async Task<bool> DoCheckout(CheckoutModel model)
         {
             using var transaction = _db.Database.BeginTransaction();
             try
@@ -179,7 +179,7 @@ namespace BookShoppingCartMvcUI.Repositories
                     Address = model.Address,
                     IsPaid = false,
                     OrderStatusId = pendingRecord.Id,
-                    TotalPrice = totalPrice,
+                    TotalPrice = model.TotalAmount,
                 };
                 _db.Orders.Add(order);
                 _db.SaveChanges();
