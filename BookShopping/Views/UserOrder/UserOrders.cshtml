@@ -1,18 +1,27 @@
-﻿@model IEnumerable<Order>
+﻿@model UserOrderModel
 @{
 }
 <div style="width:100%" class="mt-2">
-    <a href="/Identity/Account/Manage" class="btn btn-primary my-2">Back</a>
+    <div class="row">
+        <div class="col-2">
+            <a href="/Identity/Account/Manage" class="btn btn-primary my-2">Back</a>
+            <h4>My Orders</h4>
+        </div>
+        <div class="col-10 text-right m-auto">
+            <h4 class="text-info">Total Spent: @Math.Round(Model.Orders.Select(o => o.TotalPrice).Sum(), 2)</h4>
+            <h5 class="text-decoration-underline text-primary-emphasis">Member rank : @Model.Rank.ToString()</h5>
+        </div>
+    </div>
 
-    <h4>My Orders</h4>
-    @if (Model != null && Model.Count() > 0)
+    
+    @if (Model.Orders != null && Model.Orders.Count() > 0)
     {
         <table class="table table-striped">
             <tr>
                 <th>OrderDate</th>
                 <th>OrderStatus</th>
             </tr>
-            @foreach (var order in Model)
+            @foreach (var order in Model.Orders)
             {
                 <tr>
                     <td>@order.CreateDate.ToString("dd-MM-yyyy")</td>
@@ -44,9 +53,9 @@
                                     <tr>
                                         <td>@item.Book.Name</td>
                                         <td>
-                                            @if (string.IsNullOrEmpty(item.Book.Image))
+                                            @if (!string.IsNullOrEmpty(item.Book.Image))
                                             {
-                                                <img src="/images/NoImage.png" style="width:80px;height:100px" />
+                                                <img src="~/images/noImage.jpg" style="width:80px;height:100px" />
                                             }
                                             else
                                             {

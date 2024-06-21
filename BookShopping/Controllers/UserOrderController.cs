@@ -15,7 +15,13 @@ namespace BookShopping.Controllers
         public async Task<IActionResult> UserOrders()
         {
             var orders = await _userOrderRepo.UserOrder();
-            return View(orders);
+            var rank = new Rank(orders.Select(o => o.TotalPrice).Sum());
+            UserOrderModel model = new()
+            {
+                Orders = orders,
+                Rank = rank.rankUser
+            };
+            return View(model);
         }
     }
 }

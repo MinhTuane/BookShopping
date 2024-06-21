@@ -8,10 +8,12 @@ namespace BookShopping.Controllers
     public class CartController : Controller
     {
         private readonly ICartRepository _cartRepo;
+        private readonly IUserOrderRepository _userOrderRepo;
 
-        public CartController(ICartRepository cartRepo)
+        public CartController(ICartRepository cartRepo, IUserOrderRepository userOrderRepo)
         {
             _cartRepo = cartRepo;
+            _userOrderRepo = userOrderRepo;
         }
         public async Task<IActionResult> AddItem(int bookId, int qty = 1, int redirect = 0)
         {
@@ -38,7 +40,14 @@ namespace BookShopping.Controllers
                 ViewData["Discount"] = discount.Rate;
             }
             var cart = await _cartRepo.GetUserCart();
-            return View("GetUserCart", cart);
+            var orders = await _userOrderRepo.UserOrder();
+            var rank = new Rank(orders.Select(o => o.TotalPrice).Sum());
+            CartMemberModel model = new()
+            {
+                carts = cart,
+                MemberDiscount = rank.GetValue()
+            };
+            return View("GetUserCart", model);
         }
         public async Task<IActionResult> RemoveItem(int bookId)
         {
@@ -51,7 +60,14 @@ namespace BookShopping.Controllers
         public async Task<IActionResult> GetUserCart()
         {
             var cart = await _cartRepo.GetUserCart();
-            return View(cart);
+            var orders = await _userOrderRepo.UserOrder();
+            var rank = new Rank(orders.Select(o => o.TotalPrice).Sum());
+            CartMemberModel model = new()
+            {
+                carts = cart,
+                MemberDiscount = rank.GetValue()
+            };
+            return View(model);
         }
 
         public async Task<IActionResult> GetTotalItemInCart()

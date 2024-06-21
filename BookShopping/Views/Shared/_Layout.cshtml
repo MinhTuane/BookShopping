@@ -28,38 +28,27 @@
                     </li>
                     @if(User.IsInRole(Roles.Admin.ToString()))
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="/AdminOperations/AllOrders">Orders</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Stock/Index">Stock</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Genre/Index">Genre</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Books/Index">Book</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Discounts/Index">Discount</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/AdminOperations/AllOrders">Orders</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/Stock/Index">Stock</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/Genre/Index">Book</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/Discounts/Index">Discount</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/Genre/Index">Genre</a>
+                            </div>
                         </li>
                     }
-                    @* <li class="nav-item">
-                        <a class="nav-link" href="#">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">About</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Separated link</a>
-                        </div>
-                    </li> *@
+                    @if (User.IsInRole(Roles.User.ToString()))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/UserOrder/UserOrders">My Order</a>
+                        </li>
+                    }
                 </ul>
                 <partial name="_LoginPartial"/>
             </div>

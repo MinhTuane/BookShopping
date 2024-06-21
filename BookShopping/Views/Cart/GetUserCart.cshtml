@@ -1,10 +1,10 @@
-﻿@model ShoppingCart
+﻿@model CartMemberModel
 @{
     ViewData["Title"] = "GetUserCart";
 }
 
 <div style="width:90%;margin:auto" class="mt-2">
-    @if (Model != null && Model.CartDetails != null && Model.CartDetails.Count > 0)
+    @if (Model.carts != null && Model.carts.CartDetails != null && Model.carts.CartDetails.Count > 0)
     {
         <h5>My Cart</h5>
 
@@ -17,7 +17,7 @@
                 <th>Total Price</th>
                 <th>Action</th>
             </tr>
-            @foreach (var item in Model.CartDetails)
+            @foreach (var item in Model.carts.CartDetails)
             {
                 <tr>
                     <td>@item.Book.Name</td>
@@ -52,21 +52,32 @@
             }
         </table>
 
-        var total = Model.CartDetails.Select(item => item.Book.Price * item.Quantity).Sum();
-        float discount = 0;
+        var total =Math.Round(Model.carts.CartDetails.Select(item => item.Book.Price * item.Quantity).Sum(),2);
+        double discount = 0;
         if(ViewData["Discount"]!=null)
         {
-            discount = (float)ViewData["Discount"];
+            discount = (double)ViewData["Discount"];
         }
-        total = Math.Round(total * (1-discount),2) ;
+        total = total*(1-Model.MemberDiscount)*(1-discount) ;
         <div class="row w-100">
             <div class="my-2 col-1 w-50">
-                <h5>Total(usd): @total</h5>
+                <div class="discount-container">
+                    <div class="original-price">
+                        <span class="label">Original Price:</span>
+                        <span class="value">$@Model.carts.CartDetails.Select(item => item.Book.Price * item.Quantity).Sum()</span>
+                    </div>
+                    <div class="discount-price">
+                        <span class="label">Member Discounted Price:</span>
+                        <span class="value">$@total</span>
+                        <span class="reason">(@(discount*100)% off with coupon and @(Model.MemberDiscount*100)% off with Member discount)</span>
+                    </div>
+                </div>
+
 
             </div>
             <div class="col-1 w-50">
                 <form asp-action="GetDiscount">
-                    <span class="text-bg-danger">@ViewData["DcMessage"]</span>
+                    <span class="text-danger">@ViewData["DcMessage"]</span>
                     <input name="code" id="code"/>
                     <button type="submit" class="btn btn-outline-primary">Apply</button>
                 </form>
@@ -86,3 +97,38 @@
         <h5>Cart is empty</h5>
     }
 </div>
+<style>
+    .discount-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+    }
+
+    .discount-price {
+        display: flex;
+        align-items: center;
+    }
+
+    .label {
+        margin-right: 10px;
+    }
+
+    .value {
+        font-size: 1.2em; /* Adjust font size as needed */
+    }
+
+    .reason {
+        font-size: 0.8em; /* Adjust font size as needed */
+        margin-left: 10px;
+        color: #888; /* Adjust color as needed */
+    }
+
+    .text-danger {
+        color: red;
+    }
+
+</style>
