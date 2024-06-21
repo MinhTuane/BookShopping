@@ -2,100 +2,104 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-public class IndexModel : PageModel
+namespace BookShopping.Areas.Identity.Pages.Account.Manage
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-
-    public IndexModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    public class IndexModel : PageModel
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
-    }
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-    public string Username { get; set; }
-
-    [TempData]
-    public string StatusMessage { get; set; }
-
-    [BindProperty]
-    public InputModel Input { get; set; }
-
-    public class InputModel
-    {
-        public string PhoneNumber { get; set; }
-        public IFormFile Avatar { get; set; }
-        public byte[] AvatarImage { get; set; }
-    }
-
-    private async Task LoadAsync(ApplicationUser user)
-    {
-        var userName = await _userManager.GetUserNameAsync(user);
-        var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
-        Username = userName;
-
-        Input = new InputModel
+        public IndexModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
-            PhoneNumber = phoneNumber,
-            AvatarImage = user.AvatarImage
-        };
-    }
-
-    public async Task<IActionResult> OnGetAsync()
-    {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null)
-        {
-            return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        await LoadAsync(user);
-        return Page();
-    }
+        public string Username { get; set; }
 
-    public async Task<IActionResult> OnPostAsync()
-    {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null)
+        [TempData]
+        public string StatusMessage { get; set; }
+
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        public class InputModel
         {
-            return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            public string PhoneNumber { get; set; }
+            public IFormFile Avatar { get; set; }
+            public byte[] AvatarImage { get; set; }
         }
 
-        if (!ModelState.IsValid)
+        private async Task LoadAsync(ApplicationUser user)
         {
+            var userName = await _userManager.GetUserNameAsync(user);
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+
+            Username = userName;
+
+            Input = new InputModel
+            {
+                PhoneNumber = phoneNumber,
+                AvatarImage = user.AvatarImage
+            };
+        }
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
             await LoadAsync(user);
             return Page();
         }
 
-        var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-        if (Input.PhoneNumber != phoneNumber)
+        public async Task<IActionResult> OnPostAsync()
         {
-            var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-            if (!setPhoneResult.Succeeded)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                StatusMessage = "Unexpected error when trying to set phone number.";
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await LoadAsync(user);
+                return Page();
+            }
+
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            if (Input.PhoneNumber != phoneNumber)
+            {
+                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+                if (!setPhoneResult.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to set phone number.";
+                    return RedirectToPage();
+                }
+            }
+
+            if (Input.Avatar != null && Input.Avatar.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await Input.Avatar.CopyToAsync(memoryStream);
+                    user.AvatarImage = memoryStream.ToArray();
+                }
+            }
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                StatusMessage = "Unexpected error when trying to update profile.";
                 return RedirectToPage();
             }
-        }
 
-        if (Input.Avatar != null && Input.Avatar.Length > 0)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                await Input.Avatar.CopyToAsync(memoryStream);
-                user.AvatarImage = memoryStream.ToArray();
-            }
-        }
-
-        var updateResult = await _userManager.UpdateAsync(user);
-        if (!updateResult.Succeeded)
-        {
-            StatusMessage = "Unexpected error when trying to update profile.";
+            await _signInManager.RefreshSignInAsync(user);
+            StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
-        await _signInManager.RefreshSignInAsync(user);
-        StatusMessage = "Your profile has been updated";
-        return RedirectToPage();
     }
 }
