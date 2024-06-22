@@ -81,17 +81,29 @@ namespace BookShopping.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Author,Price,Image,GenreId")] Book book)
+        public async Task<IActionResult> Create([Bind("Id,Name,Author,Price,GenreId")] Book book, IFormFile image)
         {
             if (ModelState.IsValid)
             {
+                if (image != null && image.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image.CopyToAsync(memoryStream);
+                        book.Image = memoryStream.ToArray();
+                        book.ImageMime = image.ContentType;
+                    }
+                }
+
                 _context.Add(book);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "GenreName", book.GenreId);
             return View(book);
         }
+
 
         // GET: Books/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -115,7 +127,7 @@ namespace BookShopping.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Author,Price,Image,GenreId")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Author,Price,GenreId")] Book book, IFormFile image)
         {
             if (id != book.Id)
             {
@@ -126,6 +138,15 @@ namespace BookShopping.Controllers
             {
                 try
                 {
+                    if (image != null && image.Length > 0)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await image.CopyToAsync(memoryStream);
+                            book.Image = memoryStream.ToArray();
+                            book.ImageMime = image.ContentType;
+                        }
+                    }
                     _context.Update(book);
                     await _context.SaveChangesAsync();
                 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookShopping.Migrations
 {
     [DbContext(typeof(BookDbContext))]
-    [Migration("20240622062855_CreateMessagesTable")]
-    partial class CreateMessagesTable
+    [Migration("20240622125707_ChangeBookType")]
+    partial class ChangeBookType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,8 +41,8 @@ namespace BookShopping.Migrations
                     b.Property<int>("GenreId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -50,14 +50,13 @@ namespace BookShopping.Migrations
                         .HasColumnType("nvarchar(40)");
 
                     b.Property<double>("Price")
-                        .HasMaxLength(50)
                         .HasColumnType("float");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Book");
                 });
 
             modelBuilder.Entity("BookShopping.Models.CartDetail", b =>

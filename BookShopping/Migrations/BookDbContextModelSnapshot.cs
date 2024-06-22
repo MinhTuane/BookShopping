@@ -38,7 +38,10 @@ namespace BookShopping.Migrations
                     b.Property<int>("GenreId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Image")
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ImageMime")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -47,14 +50,13 @@ namespace BookShopping.Migrations
                         .HasColumnType("nvarchar(40)");
 
                     b.Property<double>("Price")
-                        .HasMaxLength(50)
                         .HasColumnType("float");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Book");
                 });
 
             modelBuilder.Entity("BookShopping.Models.CartDetail", b =>

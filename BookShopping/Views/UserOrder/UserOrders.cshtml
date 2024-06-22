@@ -53,7 +53,7 @@
                                     <tr>
                                         <td>@item.Book.Name</td>
                                         <td>
-                                            @if (!string.IsNullOrEmpty(item.Book.Image))
+                                            @if (item.Book.Image == null)
                                             {
                                                 <img src="~/images/noImage.jpg" style="width:80px;height:100px" />
                                             }

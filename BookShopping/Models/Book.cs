@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookShopping.Models
 {
+    [Table("Book")]
     public class Book
     {
         public int Id { get; set; }
@@ -13,11 +14,11 @@ namespace BookShopping.Models
 
         [Required]
         [MaxLength(40)]
-        public string Author{ get; set; }
+        public string Author { get; set; }
         [Required]
-        [StringLength(50)]
         public double Price { get; set; }
-        public string Image { get; set; }
+        public string ImageMime { get; set; }
+        public byte[] Image { get; set; }
         [Required]
         public int GenreId { get; set; }
         public Genre Genre { get; set; }
@@ -29,5 +30,7 @@ namespace BookShopping.Models
         public string GenreName { get; set; }
         [NotMapped]
         public int Quantity { get; set; }
+
+
     }
 }

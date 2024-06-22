@@ -9,46 +9,62 @@
 <div>
     <h4>Book</h4>
     <hr />
-    <table>
-        <td>
+    <div class="row">
+        <div class="col-md-6">
             <dl class="row">
-                <dt class="col-sm-2">
+                <dt class="col-sm-4">
+                    @* Adjust col-sm-4 to match your desired label width *@
                     @Html.DisplayNameFor(model => model.Name)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.Name)
                 </dd>
-                <dt class="col-sm-2">
+
+                <dt class="col-sm-4">
                     @Html.DisplayNameFor(model => model.Author)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.Author)
                 </dd>
-                <dt class="col-sm-2">
+
+                <dt class="col-sm-4">
                     @Html.DisplayNameFor(model => model.Price)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.Price)
                 </dd>
-                <dt class="col-sm-2">
+
+                <dt class="col-sm-4">
                     @Html.DisplayNameFor(model => model.Genre)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.Genre.GenreName)
                 </dd>
             </dl>
-        </td>
-        <td>
-            <img src="@Html.DisplayFor(model => model.Image)"/>
-        </td>
-    </table>
+        </div>
+
+        <div class="col-md-6">
+            <div class="text-center">
+                @if (Model.Image != null && Model.ImageMime != null)
+                {
+                    string imageBase64 = Convert.ToBase64String(Model.Image);
+                    string imageSrc = $"data:{Model.ImageMime};base64,{imageBase64}";
+                    <img src="@imageSrc" alt="Book Image" class="img-thumbnail" style="width:350px;height:500px" />
+                }
+                else
+                {
+                    <img src="~/images/noImage.jpg" alt="Book Image" style="width:200px;height:350px" />
+                }
+            </div>
+        </div>
+    </div>
 </div>
 <div>
     @if (User.IsInRole(Roles.Admin.ToString()))
     {
-        <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> 
-        
-        <a asp-action = "Index" > Back to List</a>
+        <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+
+        <a asp-action="Index"> Back to List</a>
     }
     else
     {

@@ -33,7 +33,7 @@ namespace BookShopping.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<IActionResult> GetMessage(int id)
         {
             var message = await _messageRepo.GetMessageByIdAsync(id);

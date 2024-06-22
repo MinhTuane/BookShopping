@@ -38,14 +38,13 @@
         {
             <div class="col">
                 <div class="card book-card h-100">
-                    @if (string.IsNullOrEmpty(book.Image))
-                    {
-                        <img src="/images/NoImage.png" class="card-img-top book-img" alt="@book.Name" />
+                    @{
+                    
+                        string imageBase64 = Convert.ToBase64String(book.Image);
+                        string imageSrc = $"data:{book.ImageMime};base64,{imageBase64}";
+                        <img src="@imageSrc" alt="Book Image" class="img-thumbnail" />
                     }
-                    else
-                    {
-                        <img src="/images/@book.Image" class="card-img-top book-img" alt="@book.Name" />
-                    }
+                    
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">@book.Name</h5>
                         <p class="card-text">

@@ -22,13 +22,16 @@
                 <tr>
                     <td>@item.Book.Name</td>
                     <td>
-                        @if (string.IsNullOrEmpty(item.Book.Image))
+                       
+                        @if (item.Book.Image != null && item.Book.ImageMime != null)
                         {
-                            <img src="/images/NoImage.png" style="width:80px;height:100px" />
+                            string imageBase64 = Convert.ToBase64String(item.Book.Image);
+                            string imageSrc = $"data:{item.Book.ImageMime};base64,{imageBase64}";
+                            <img src="@imageSrc" alt="Book Image" class="img-thumbnail" style="width:80px;height:100px" />
                         }
                         else
                         {
-                            <img src="/images/@item.Book.Image" style="width:80px;height:100px" />
+                            <img src="~/images/noImage.jpg" alt="Book Image" style="width:80px;height:100px" />
                         }
                     </td>
                     <td>@(item.Book.Genre != null ? item.Book.Genre.GenreName : "Unknown Genre")</td>
