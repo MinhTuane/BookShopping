@@ -4,6 +4,20 @@
 
 <ul class="navbar-nav">
     <li class="nav-item">
+        @{
+            var hrefChat = "UserChat";
+
+            if (User.IsInRole("Admin"))
+            {
+                hrefChat = "AdminChat";
+            }
+        }
+        <a class="nav-link" href="/Messages/@hrefChat">
+            <i class="bi bi-chat-dots"></i>
+            <span id="unreadMessageCount" class="badge bg-danger">0</span>
+        </a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link text-dark" href="/Cart/GetUSerCart">
             <span id="cartCount" class="badge text-bg-info">0</span>
             <i class="bi bi-cart"></i>

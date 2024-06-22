@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using BookShopping.Models;
 
 namespace BookShopping.Data
 {
@@ -17,11 +16,10 @@ namespace BookShopping.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
-
         public DbSet<CartDetail> CartDetails { get; set; }
-
         public DbSet<Stock> Stocks { get; set; }
-        public DbSet<BookShopping.Models.Discount> Discount { get; set; }
+        public DbSet<Discount> Discount { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
     }
 }

@@ -1,0 +1,125 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat with Admin</title>
+    <style>
+        #chatWindow {
+            max-height: 70vh;
+            overflow-y: auto;
+            border: 2px solid #FF9598;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-start-end-radius: 20px;
+        }
+
+        .message {
+            display: block;
+            width: fit-content;
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+            word-wrap: break-word;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+            .message.sent {
+                margin-left: auto;
+                background-color: #e1ffc7;
+                border-color: #e1ffc7;
+            }
+
+            .message.received {
+                margin-right: auto;
+                background-color: #f1f1f1;
+                border-color: #f1f1f1;
+            }
+
+        .sent-time {
+            display: none;
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        #sendMessageForm {
+            display: flex;
+            gap: 10px;
+        }
+
+            #sendMessageForm textarea {
+                flex-grow: 1;
+                resize: none;
+                border-radius: 10px;
+                padding: 10px;
+            }
+
+            #sendMessageForm button {
+                align-self: center;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Chat With Admin</h2>
+
+        <div id="chatWindow">
+            @foreach (var message in Model)
+            {
+                <div class="message @(message.SenderId == User.Identity.Name ? "sent" : "received")" onclick="toggleTime(this)">
+                    @message.Content
+                    <div class="sent-time">@message.SentAt.ToString("g")</div>
+                </div>
+            }
+        </div>
+
+        <form id="sendMessageForm" asp-action="SendMessage">
+            <textarea name="content" placeholder="Type your message" class="form-control" required></textarea>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+    <script>
+        scrollToBottom();
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        function scrollToBottom() {
+            const chatWindow = document.getElementById("chatWindow");
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function toggleTime(element) {
+            const timeElement = element.querySelector(".sent-time");
+            if (timeElement) {
+                if (timeElement.style.display === "none" || !timeElement.style.display) {
+                    timeElement.style.display = "block";
+                } else {
+                    timeElement.style.display = "none";
+                }
+            }
+        }
+
+        connection.on("ReceiveMessage", (user, message, sentAt) => {
+            const msg = document.createElement("div");
+            msg.className = user === '@User.Identity.Name' ? 'message sent' : 'message received';
+            msg.innerHTML = message + `<div class="sent-time">${sentAt}</div>`;
+            msg.onclick = function () { toggleTime(msg); };
+            document.getElementById("chatWindow").appendChild(msg);
+            scrollToBottom();
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+
+        // Scroll to bottom when a new message is sent
+        document.getElementById("sendMessageForm").addEventListener("submit", function () {
+            scrollToBottom();
+        });
+    </script>
+</body>
+</html>
