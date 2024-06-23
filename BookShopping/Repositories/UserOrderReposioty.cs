@@ -29,9 +29,29 @@ namespace BookShopping.Repositories
             await _db.SaveChangesAsync();
         }
 
-        public async Task<Order?> GetOrderById(int id)
+        public async Task<Order> GetOrderById(int id)
         {
             return await _db.Orders.FindAsync(id);
+        }
+
+        public async Task<List<BookStatisticModel>> GetStatisticData(DateTime? start = null, DateTime? end = null)
+        {
+            DateTime startDate = start ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            DateTime endDate = end ?? DateTime.Now;
+
+            var query = await _db.Orders.
+                Where(o => o.IsPaid == true && o.CreateDate >= startDate && o.CreateDate <= endDate.AddDays(1))
+                .SelectMany(o => o.OrderDetails)
+                .GroupBy(od => od.Book.Name)
+                .Select(g => new BookStatisticModel
+                {
+                    BookName = g.Key,
+                    Quantity = g.Select(od => od.Quantity).Sum()
+                })
+                .OrderByDescending(b => b.Quantity)
+                .Take(10)
+                .ToListAsync();
+            return query;
         }
 
         public async Task<IEnumerable<OrderStatus>> GetOrderStatus()

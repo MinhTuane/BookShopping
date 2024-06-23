@@ -41,7 +41,7 @@ namespace BookShopping.Controllers
             }
             var cart = await _cartRepo.GetUserCart();
             var orders = await _userOrderRepo.UserOrder();
-            var rank = new Rank(orders.Select(o => o.TotalPrice).Sum());
+            var rank = new Rank(orders.Where(o => o.IsPaid == true).Select(o => o.TotalPrice).Sum());
             CartMemberModel model = new()
             {
                 carts = cart,
@@ -61,7 +61,7 @@ namespace BookShopping.Controllers
         {
             var cart = await _cartRepo.GetUserCart();
             var orders = await _userOrderRepo.UserOrder();
-            var rank = new Rank(orders.Select(o => o.TotalPrice).Sum());
+            var rank = new Rank(orders.Where(o => o.IsPaid == true).Select(o => o.TotalPrice).Sum());
             CartMemberModel model = new()
             {
                 carts = cart,

@@ -1,18 +1,56 @@
-﻿<!doctype html>
+﻿@model IEnumerable<UserMessageModel>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chat with Admin</title>
     <style>
-        #chatWindow {
-            height: 70vh;
-            overflow-y: auto;
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 90vh;
             border: 2px solid #FF9598;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .user-list {
+            width: 30%;
+            border-right: 2px solid #FF9598;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+
+        .user {
             padding: 10px;
-            margin-bottom: 20px;
+            border-bottom: 1px solid #FF9598;
+            cursor: pointer;
+        }
+
+            .user:hover {
+                background-color: #e1e1e1;
+            }
+
+            .user.active {
+                background-color: #e1ffc7;
+            }
+
+        .chat-window {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
             background-color: #fff;
-            border-start-end-radius: 20px;
+        }
+
+        #chatWindow {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
         }
 
         .message {
@@ -64,30 +102,57 @@
 </head>
 <body>
     <div class="container">
-        <h2>Chat With Admin</h2>
-
-        <div id="chatWindow">
-            @foreach (var message in Model)
+        <div class="user-list">
+            @foreach (var user in Model)
             {
-                <div class="message @(message.SenderId == User.Identity.Name ? "sent" : "received")" onclick="toggleTime(this)">
-                    @message.Content
-                    <div class="sent-time">@message.SentAt.ToString("g")</div>
+                <div class="user" data-user-id="@user.UserId" onclick="loadMessages('@user.UserId')">
+                    @user.UserId
                 </div>
             }
         </div>
+        <div class="chat-window">
+            <div id="chatWindow">
+                <!-- Messages will be loaded here dynamically -->
+            </div>
 
-        <form id="sendMessageForm" asp-action="SendMessage">
-            <textarea name="content" placeholder="Type your message" class="form-control" required></textarea>
-            <button type="submit" class="btn btn-primary">Send</button>
-        </form>
+            <form id="sendMessageForm" asp-action="SendMessage">
+                <textarea name="content" placeholder="Type your message" class="form-control" required></textarea>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
     <script>
-        scrollToBottom();
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
             .build();
+
+        let activeUserId = null;
+
+        function loadMessages(userId) {
+            activeUserId = userId;
+            document.querySelectorAll('.user').forEach(user => {
+                user.classList.remove('active');
+            });
+            document.querySelector(`.user[data-user-id='${userId}']`).classList.add('active');
+
+            // Fetch and display messages for the selected user (AJAX call or similar)
+            fetch(`/Chat/GetMessages?userId=${userId}`)
+                .then(response => response.json())
+                .then(messages => {
+                    const chatWindow = document.getElementById("chatWindow");
+                    chatWindow.innerHTML = '';
+                    messages.forEach(message => {
+                        const msg = document.createElement("div");
+                        msg.className = message.senderId === '@User.Identity.Name' ? 'message sent' : 'message received';
+                        msg.innerHTML = message.content + `<div class="sent-time">${message.sentAt}</div>`;
+                        msg.onclick = function () { toggleTime(msg); };
+                        chatWindow.appendChild(msg);
+                    });
+                    scrollToBottom();
+                });
+        }
 
         function scrollToBottom() {
             const chatWindow = document.getElementById("chatWindow");
@@ -106,12 +171,14 @@
         }
 
         connection.on("ReceiveMessage", (user, message, sentAt) => {
-            const msg = document.createElement("div");
-            msg.className = user === '@User.Identity.Name' ? 'message sent' : 'message received';
-            msg.innerHTML = message + `<div class="sent-time">${sentAt}</div>`;
-            msg.onclick = function () { toggleTime(msg); };
-            document.getElementById("chatWindow").appendChild(msg);
-            scrollToBottom();
+            if (user === activeUserId) {
+                const msg = document.createElement("div");
+                msg.className = user === '@User.Identity.Name' ? 'message sent' : 'message received';
+                msg.innerHTML = message + `<div class="sent-time">${sentAt}</div>`;
+                msg.onclick = function () { toggleTime(msg); };
+                document.getElementById("chatWindow").appendChild(msg);
+                scrollToBottom();
+            }
         });
 
         connection.start().catch(err => console.error(err.toString()));

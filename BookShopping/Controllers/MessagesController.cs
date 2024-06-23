@@ -27,11 +27,31 @@ namespace BookShopping.Controllers
         public async Task<IActionResult> AdminChat()
         {
             // Logic to fetch and return messages
-            var messages = await _messageRepo.GetAllMessagesAsync(User.Identity.Name);
+            var messages = await _messageRepo.GetAllAdminMessages(User.Identity.Name);
 
             return View(messages);
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMessages(string userId)
+        {
+            var messages = await _db.Messages
+                .Where(m => (m.SenderId == userId && m.RecipientId == User.Identity.Name) ||
+                            (m.RecipientId == userId && m.SenderId == User.Identity.Name))
+                .OrderBy(m => m.SentAt)
+                .ToListAsync();
+
+            var messageModels = messages.Select(m => new MessageModel
+            {
+                SenderId = m.SenderId,
+                Content = m.Content,
+                SentAt = m.SentAt.ToString("g")
+            });
+
+            return Json(messageModels);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> GetMessage(int id)

@@ -11,10 +11,24 @@ namespace BookShopping.Repositories
         {
             _db = db;
         }
+
+        public async Task<List<UserMessageModel>> GetAllAdminMessages(string userId)
+        {
+            var userMessages = await _db.Messages
+                .Where(m => m.SenderId == userId || m.RecipientId == userId)
+                .GroupBy(m => m.SenderId == userId ? m.RecipientId : m.SenderId)
+                .Select(g => new UserMessageModel
+                {
+                    UserId = g.Key,
+                    Messages = g.ToList()
+                })
+                .ToListAsync();
+            return userMessages;
+        }
+
         public async Task<List<Message>> GetAllMessagesAsync(string userId)
         {
-            return await _db.Messages.Where(m => m.SenderId == userId || m.RecipientId == userId)
-                .ToListAsync();
+            return await _db.Messages.Where(m => m.RecipientId == userId || m.SenderId == userId).ToListAsync();
         }
 
         public async Task<Message> GetMessageByIdAsync(int id)

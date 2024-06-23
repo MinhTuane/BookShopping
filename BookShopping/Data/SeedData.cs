@@ -76,6 +76,77 @@ namespace BookShopping.Data
                         );
                 }
 
+                if (!context.Books.Any())
+                {
+                    context.Books.AddRange(
+
+                        new Book
+                        {
+                            Name = "1984",
+                            Author = "George Orwell",
+                            Price = 9.99,
+                            GenreId = 20, // Dystopian
+                        },
+                        new Book
+                        {
+                            Name = "To Kill a Mockingbird",
+                            Author = "Harper Lee",
+                            Price = 7.99,
+                            GenreId = 14, // Classic
+                        },
+                        new Book
+                        {
+                            Name = "The Catcher in the Rye",
+                            Author = "J.D. Salinger",
+                            Price = 8.99,
+                            GenreId = 14, // Classic
+                        },
+                        new Book
+                        {
+                            Name = "The Great Gatsby",
+                            Author = "F. Scott Fitzgerald",
+                            Price = 10.99,
+                            GenreId = 14, // Classic
+                        },
+                        new Book
+                        {
+                            Name = "Moby-Dick",
+                            Author = "Herman Melville",
+                            Price = 12.99,
+                            GenreId = 5, // Adventure
+                        },
+                        new Book
+                        {
+                            Name = "Pride and Prejudice",
+                            Author = "Jane Austen",
+                            Price = 6.99,
+                            GenreId = 6, // Romance
+                        },
+                        new Book
+                        {
+                            Name = "The Da Vinci Code",
+                            Author = "Dan Brown",
+                            Price = 11.99,
+                            GenreId = 5, // Thriller
+                        },
+                        new Book
+                        {
+                            Name = "Harry Potter and the Sorcerer's Stone",
+                            Author = "J.K. Rowling",
+                            Price = 8.99,
+                            GenreId = 2, // Fantasy
+                        },
+                        new Book
+                        {
+                            Name = "The Hunger Games",
+                            Author = "Suzanne Collins",
+                            Price = 9.99,
+                            GenreId = 20, // Dystopian
+                        }
+                        );
+                    context.SaveChanges();
+                }
+
             }
         }
     }

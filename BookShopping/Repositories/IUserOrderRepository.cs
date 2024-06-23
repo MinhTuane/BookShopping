@@ -7,5 +7,6 @@
         Task TogglePaymentStatus(int orderId);
         Task<Order> GetOrderById(int id);
         Task<IEnumerable<OrderStatus>> GetOrderStatus();
+        Task<List<BookStatisticModel>> GetStatisticData(DateTime? start = null, DateTime? end = null);
     }
 }

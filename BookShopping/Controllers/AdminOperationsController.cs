@@ -20,6 +20,17 @@ namespace BookShopping.Controllers
             return View(orders);
         }
 
+        public IActionResult Statistics()
+        {
+            return View();
+        }
+
+        public async Task<JsonResult> TopSell(DateTime? start = null, DateTime? end = null)
+        {
+            var model = await _userOrderRepository.GetStatisticData(start, end);
+            return Json(model);
+        }
+
         public async Task<IActionResult> TogglePaymentStatus(int orderId)
         {
             try
