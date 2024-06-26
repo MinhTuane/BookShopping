@@ -26,6 +26,17 @@ namespace BookShopping.Repositories
             return userMessages;
         }
 
+        public async Task<List<string>> GetAllInteractedUserIds(string userId)
+        {
+            var interactedUserIds = await _db.Messages
+                .Where(m => m.SenderId == userId || m.RecipientId == userId)
+                .Select(m => m.SenderId == userId ? m.RecipientId : m.SenderId)
+                .Distinct()
+                .ToListAsync();
+
+            return interactedUserIds;
+        }
+
         public async Task<List<Message>> GetAllMessagesAsync(string userId)
         {
             return await _db.Messages.Where(m => m.RecipientId == userId || m.SenderId == userId).ToListAsync();

@@ -27,14 +27,33 @@ namespace BookShopping.Controllers
         public async Task<IActionResult> AdminChat()
         {
             // Logic to fetch and return messages
-            var messages = await _messageRepo.GetAllAdminMessages(User.Identity.Name);
+            var userIds = await _messageRepo.GetAllInteractedUserIds(User.Identity.Name);
 
-            return View(messages);
+            return View(userIds);
 
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMessages(string userId)
+        [Authorize(Roles = nameof(Roles.Admin))]
+        public async Task<IActionResult> GetMessages(string otherUserId)
+        {
+            var userId = User.Identity.Name;
+
+            if (string.IsNullOrEmpty(otherUserId) || string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new { title = "Recipient ID and message content are required." });
+            }
+            var messages = await _db.Messages
+                .Where(m => (m.SenderId == userId && m.RecipientId == otherUserId) ||
+                            (m.SenderId == otherUserId && m.RecipientId == userId))
+                .OrderBy(m => m.SentAt)
+                .ToListAsync();
+
+            return Json(messages);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserMessages(string userId)
         {
             var messages = await _db.Messages
                 .Where(m => (m.SenderId == userId && m.RecipientId == User.Identity.Name) ||
@@ -52,17 +71,6 @@ namespace BookShopping.Controllers
             return Json(messageModels);
         }
 
-
-        [HttpGet]
-        public async Task<IActionResult> GetMessage(int id)
-        {
-            var message = await _messageRepo.GetMessageByIdAsync(id);
-            if (message == null)
-            {
-                return NotFound();
-            }
-            return Ok(message);
-        }
 
         [HttpPost]
         public async Task<IActionResult> SendMessage(string content, string RecipientId = "admin@gmail.com")
@@ -95,13 +103,6 @@ namespace BookShopping.Controllers
 
             return RedirectToAction("AdminChat");
         }
-
-        public async Task<IActionResult> GetUserMessages(string userId)
-        {
-            var messages = await _messageRepo.GetAllMessagesAsync(userId);
-            return Ok(messages);
-        }
-
         public async Task<IActionResult> GetUnreadMessagesCount()
         {
             var userId = User.Identity.Name;

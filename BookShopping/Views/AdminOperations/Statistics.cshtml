@@ -38,14 +38,14 @@
             <div class="col-md-4">
                 @{
                     DateTime startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).Date;
-                    DateTime endDate = DateTime.Now.Date.AddDays(1).Date;
+                    DateTime endDate = DateTime.Now.Date;
                 }
                 <label for="startDate">Start Date:</label>
-                <input type="text" id="startDate" class="form-control" value="@startDate" autocomplete="off">
+                <input type="text" id="startDate" class="form-control" value="@startDate.ToString("dd/MMM/yyyy")" autocomplete="off">
             </div>
             <div class="col-md-4">
                 <label for="endDate">End Date:</label>
-                <input type="text" id="endDate" class="form-control" value="@endDate" autocomplete="off">
+                <input type="text" id="endDate" class="form-control" value="@endDate.ToString("dd/MMM/yyyy")" autocomplete="off">
             </div>
             <div class="col-md-4 mt-md-0">
                 <button id="updateChartBtn" class="btn btn-primary btn-block">Update Chart</button>
@@ -65,23 +65,42 @@
         $(document).ready(function () {
             var myChart = null; // Variable to store the chart instance
 
-            // Initialize date pickers
+            // Initialize date pickers with dd/MMM/yyyy format
             $('#startDate').datepicker({
                 autoclose: true,
                 todayHighlight: true,
-                format: 'yyyy-mm-dd'
+                format: 'dd/M/yyyy'
+            }).on('changeDate', function (e) {
+                var selectedStartDate = new Date(e.date);
+                var selectedEndDate = new Date($('#endDate').datepicker('getDate'));
+
+                // Update endDate minimum selectable date
+                $('#endDate').datepicker('setStartDate', selectedStartDate);
+
+                // If endDate is before selectedStartDate, reset endDate to selectedStartDate
+                if (selectedEndDate < selectedStartDate) {
+                    $('#endDate').datepicker('setDate', selectedStartDate);
+                }
             });
 
             $('#endDate').datepicker({
                 autoclose: true,
                 todayHighlight: true,
-                format: 'yyyy-mm-dd'
+                format: 'dd/M/yyyy'
+            }).on('changeDate', function (e) {
+                var selectedEndDate = new Date(e.date);
+                var selectedStartDate = new Date($('#startDate').datepicker('getDate'));
+
+                // If endDate is before selectedStartDate, reset endDate to selectedStartDate
+                if (selectedEndDate < selectedStartDate) {
+                    $('#endDate').datepicker('setDate', selectedStartDate);
+                }
             });
 
             // Fetch data and update chart on button click
             $('#updateChartBtn').click(function () {
-                var startDate = $('#startDate').val();
-                var endDate = $('#endDate').val();
+                var startDate = $('#startDate').datepicker('getFormattedDate', 'yyyy-mm-dd');
+                var endDate = $('#endDate').datepicker('getFormattedDate', 'yyyy-mm-dd');
 
                 $.ajax({
                     url: '/AdminOperations/TopSell/',

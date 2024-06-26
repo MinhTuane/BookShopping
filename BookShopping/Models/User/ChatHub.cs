@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 public class ChatHub : Hub
 {
@@ -9,6 +10,17 @@ public class ChatHub : Hub
         _DbContext = context;
     }
 
+    public async Task<List<string>> GetMessagesWithUser(string userId, string otherUserId)
+    {
+        var messages = await _DbContext.Messages
+            .Where(m => (m.SenderId == userId && m.RecipientId == otherUserId) ||
+                        (m.SenderId == otherUserId && m.RecipientId == userId))
+            .OrderBy(m => m.SentAt)
+            .Select(m => m.Content)
+            .ToListAsync();
+
+        return messages;
+    }
     public async Task SendMessageToUser(string recipient, string message)
     {
         var sender = Context.User.Identity.Name;

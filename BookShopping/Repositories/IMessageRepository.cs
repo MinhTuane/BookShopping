@@ -7,5 +7,6 @@
         Task<List<UserMessageModel>> GetAllAdminMessages(string userId);
         Task<Message> SendMessageAsync(Message message);
         Task MarkMessageAsReadAsync(int messageId);
+        Task<List<string>> GetAllInteractedUserIds(string userId);
     }
 }

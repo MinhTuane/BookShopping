@@ -85,7 +85,7 @@
                 if(response.status ==200) {
                     var result = await response.json();
                     var unreadEl = document.getElementById("unreadMessageCount");
-                    unreadEl = document.innerHTML = result;
+                    unreadEl.innerHTML = result;
                 }
             } catch (err) {
                 console.log(err);
