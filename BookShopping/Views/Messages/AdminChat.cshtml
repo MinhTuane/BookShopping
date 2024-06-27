@@ -21,11 +21,11 @@
         <div id="messages" class="border p-3 mb-3" style="height: 400px; overflow-y: scroll;">
             <!-- Messages will be loaded here via AJAX -->
         </div>
-        <form id="sendMessageForm">
-            <input type="hidden" id="recipientId" value="@Model[0]" />
-            <textarea id="messageContent" class="form-control" placeholder="Type your message here..."></textarea>
-            <button type="submit" class="btn btn-primary mt-2">Send</button>
-        </form>
+        <div id="sendMessageForm">
+            <input type="hidden" id="recipientId" value="@((Model !=null && Model.Count > 0) ? Model[0] : null)" />
+            <textarea id="content" class="form-control" placeholder="Type your message here..."></textarea>
+            <button type="button" id="sendButton" class="btn btn-primary mt-2">Send</button>
+        </div>
     </div>
 </div>
 
@@ -63,27 +63,37 @@
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+
 <script>
     $(document).ready(function () {
-        var selectedUserId = '@Model[0]';
-
+        var selectedUserId = '@((Model != null && Model.Count > 0) ? Model[0] : null)';
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+        document.getElementById("sendButton").disabled = true;
         function scrollToBottom() {
             const chatWindow = document.getElementById("messages");
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
         function loadMessages() {
-            $.get('/Messages/GetMessages', { otherUserId: selectedUserId }, function (data) {
-                $('#messages').empty();
-                data.forEach(function (message) {
-                    const msg = document.createElement("div");
-                    msg.className = message.senderId === '@User.Identity.Name' ? 'message sent' : 'message received';
-                    msg.innerHTML = message.content + `<div class="sent-time">${message.sentAt}</div>`;
-                    msg.onclick = function () { toggleTime(msg); };
-                    document.getElementById("messages").appendChild(msg);
+            if (selectedUserId != null) {
+                $.get('/Messages/GetMessages', { otherUserId: selectedUserId }, function (data) {
+                    $('#messages').empty();
+                    data.forEach(function (message) {
+                        const msg = document.createElement("div");
+                        msg.className = message.senderId === '@User.Identity.Name' ? 'message sent' : 'message received';
+                        const sentAt = new Date(message.sentAt);
+                        msg.innerHTML = message.content + `<div class="sent-time">${sentAt.toLocaleString()}</div>`;
+                        msg.onclick = function () { toggleTime(msg); };
+                        document.getElementById("messages").appendChild(msg);
+                    });
+                    scrollToBottom();
                 });
-                scrollToBottom();
-            });
+                $.post('/Messages/MarkMessageAsRead', { recipientId: selectedUserId });
+            }
+            
         }
 
         function toggleTime(element) {
@@ -99,6 +109,22 @@
 
         loadMessages();
 
+
+        connection.on("ReceiveMessage",function (user, message, sentAt){
+            console.log("receive Message");
+            const msg = document.createElement("div");
+            msg.className = user === '@User.Identity.Name' ? 'message sent' : 'message received';
+            const sentAtNew = new Date(message.sentAt);
+            msg.innerHTML = message + `<div class="sent-time">${sentAtNew.toLocaleString()}</div>`;
+            msg.onclick = function () { toggleTime(msg); };
+            document.getElementById("messages").appendChild(msg);
+            scrollToBottom();
+        });
+
+        connection.start().then(() => {
+            document.getElementById("sendButton").disabled = false;
+        }).catch(err => console.error(err.toString()));
+
         $('.user-item').click(function () {
             selectedUserId = $(this).data('user-id');
             $('#recipientId').val(selectedUserId);
@@ -107,28 +133,16 @@
             loadMessages();
         });
 
-        $('#sendMessageForm').submit(function (e) {
+        document.getElementById("sendButton").addEventListener("click",function (e) {           
+            var content = document.getElementById("content").value;
+            connection.invoke("SendMessage", selectedUserId, content).then(() => {               
+                scrollToBottom();
+            }).catch(function(err){
+                return console.error(err.toLocaleString());
+            })
             e.preventDefault();
-            var content = $('#messageContent').val();
-            $.post('/Messages/SendMessage', { content: content, recipientId: selectedUserId }, function () {
-                $('#messageContent').val('');
-                loadMessages();
-            });
-        });
-
-        // SignalR connection for real-time message updates (assuming SignalR is set up)
-        const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
-
-        connection.on("ReceiveMessage", (user, message, sentAt) => {
-            const msg = document.createElement("div");
-            msg.className = user === '@User.Identity.Name' ? 'message sent' : 'message received';
-            msg.innerHTML = message + `<div class="sent-time">${sentAt}</div>`;
-            msg.onclick = function () { toggleTime(msg); };
-            document.getElementById("messages").appendChild(msg);
-            scrollToBottom();
-        });
-
-        connection.start().catch(err => console.error(err.toString()));
+            document.getElementById("content").value = '';
+        });      
     });
 </script>
 

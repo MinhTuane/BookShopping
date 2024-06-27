@@ -115,5 +115,40 @@ namespace BookShopping.Controllers
                 .CountAsync();
             return Ok(unreadCount);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkMessageAsRead(string recipientId)
+        {
+            if (ModelState.IsValid)
+            {
+                if (string.IsNullOrEmpty(recipientId))
+                {
+                    return BadRequest("Recipient ID is required.");
+                }
+
+                var userId = User.Identity.Name;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("User is not authenticated.");
+                }
+
+                try
+                {
+                    await _db.Messages
+                        .Where(m => m.RecipientId == userId && m.SenderId == recipientId && !m.IsRead)
+                        .ExecuteUpdateAsync(m => m.SetProperty(b => b.IsRead, true));
+
+                    return Ok("Messages marked as read.");
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception
+                    return StatusCode(500, "An error occurred while marking messages as read.");
+                }
+
+            }
+
+            return Unauthorized("User is not authenticated.");
+        }
     }
 }

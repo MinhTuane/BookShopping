@@ -141,15 +141,19 @@ namespace BookShopping.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("RecipientId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("SenderId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
                 });
@@ -538,6 +542,21 @@ namespace BookShopping.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("ShoppingCart");
+                });
+
+            modelBuilder.Entity("BookShopping.Models.Message", b =>
+                {
+                    b.HasOne("BookShopping.Models.User.ApplicationUser", "Recipient")
+                        .WithMany()
+                        .HasForeignKey("RecipientId");
+
+                    b.HasOne("BookShopping.Models.User.ApplicationUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("BookShopping.Models.Order", b =>

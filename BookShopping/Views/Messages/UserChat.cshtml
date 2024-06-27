@@ -79,18 +79,23 @@
             }
         </div>
 
-        <form id="sendMessageForm" asp-action="SendMessage">
-            <textarea name="content" placeholder="Type your message" class="form-control" required></textarea>
-            <button type="submit" class="btn btn-primary">Send</button>
-        </form>
+        <div id="sendMessageForm">
+            <textarea name="content" id="content" placeholder="Type your message" class="form-control" required></textarea>
+            <button type="button" id="sendButton" class="btn btn-primary">Send</button>
+        </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         scrollToBottom();
+        $.post('/Messages/MarkMessageAsRead', { recipientId: "admin@gmail.com" });
+
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
             .build();
+
+        document.getElementById("sendButton").disabled = true;
 
         function scrollToBottom() {
             const chatWindow = document.getElementById("chatWindow");
@@ -108,20 +113,33 @@
             }
         }
 
-        connection.on("ReceiveMessage", (user, message, sentAt) => {
+        connection.on("ReceiveMessage",function (user, message, sentAt){
+            console.log("receive Message");
             const msg = document.createElement("div");
+            const sentAtNew = new Date(message.sentAt);
             msg.className = user === '@User.Identity.Name' ? 'message sent' : 'message received';
-            msg.innerHTML = message + `<div class="sent-time">${sentAt}</div>`;
+            msg.innerHTML = message + `<div class="sent-time">${sentAtNew.toLocaleString()}</div>`;
             msg.onclick = function () { toggleTime(msg); };
             document.getElementById("chatWindow").appendChild(msg);
             scrollToBottom();
         });
 
-        connection.start().catch(err => console.error(err.toString()));
+        connection.start().then(() => {
+            document.getElementById("sendButton").disabled = false;
+            console.log("connect Successful")
+        }).catch(err => console.error(err.toString()));
 
         // Scroll to bottom when a new message is sent
-        document.getElementById("sendMessageForm").addEventListener("submit", function () {
-            scrollToBottom();
+        document.getElementById("sendButton").addEventListener("click", function (e) {
+            var content = document.getElementById("content").value;
+            connection.invoke("SendMessage", "admin@gmail.com", content).then(() => {
+                console.log("sending");                
+                scrollToBottom();
+            }).catch(function (err) {
+                return console.error(err.toLocaleString());
+            })
+            e.preventDefault();
+            document.getElementById("content").value = '';
         });
     </script>
 </body>
