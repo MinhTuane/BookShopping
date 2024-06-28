@@ -9,11 +9,13 @@ namespace BookShopping.Controllers
     {
         private readonly ICartRepository _cartRepo;
         private readonly IUserOrderRepository _userOrderRepo;
+        private readonly IVnPayRepositories _vnPayRepo;
 
-        public CartController(ICartRepository cartRepo, IUserOrderRepository userOrderRepo)
+        public CartController(ICartRepository cartRepo, IUserOrderRepository userOrderRepo, IVnPayRepositories vnPayRepo)
         {
             _cartRepo = cartRepo;
             _userOrderRepo = userOrderRepo;
+            _vnPayRepo = vnPayRepo;
         }
         public async Task<IActionResult> AddItem(int bookId, int qty = 1, int redirect = 0)
         {
@@ -89,7 +91,31 @@ namespace BookShopping.Controllers
                 return View("Checkout", model);
             bool isCheckedOut = await _cartRepo.DoCheckout(model);
             if (!isCheckedOut)
+            {
+                if (model.PaymentMethod == "VnPay")
+                {
+                    var modelVnPay = new VnPaymentResquestModel
+                    {
+                        Amount = model.TotalAmount,
+                        CreatedDate = DateTime.Now,
+                        Address = model.Address,
+                        Fullname = model.Name
+                    };
+                    return Redirect(_vnPayRepo.CreatePaymentUrl(HttpContext, modelVnPay));
+                }
                 return RedirectToAction(nameof(OrderFailure));
+            }
+            if (model.PaymentMethod == "VnPay")
+            {
+                var modelVnPay = new VnPaymentResquestModel
+                {
+                    Amount = model.TotalAmount,
+                    CreatedDate = DateTime.Now,
+                    Address = model.Address,
+                    Fullname = model.Name
+                };
+                return Redirect(_vnPayRepo.CreatePaymentUrl(HttpContext, modelVnPay));
+            }
             return RedirectToAction(nameof(OrderSuccess));
         }
 

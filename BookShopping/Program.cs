@@ -43,7 +43,7 @@ builder.Services.AddTransient<IMessageRepository, MessageRepository>();
 
 builder.Services.AddSignalR();
 
-
+builder.Services.AddSingleton<IVnPayRepositories, VnPayRepositories>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
